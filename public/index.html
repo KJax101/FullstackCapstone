@@ -5,98 +5,106 @@
   <meta name="viewport" content="width=device-width,  initial-scale=1">
   <title>FullstackCapstone · Thinkful</title>
   <link href="index.css" rel="stylesheet" type="text/css" />
-  <script src="//code.jquery.com/jquery.min.js"></script>
-  <script type="text/javascript" src="index.js"></script>
 </head>
 
-<!--<body class="vegas-container"><div class="</div></div>-->
-
   <main role="main">
-    <div class="js-start-display" id="start-page">
-      <header class="row">
-        <h1 class="logo">My PictureBank</h1>
-        <p>Search, Dowload, Save and Share your favorite photos!</p>
-      </header>
-    </div>
-    <section role="region" class="learn-button">
-      <button class="create-your-account" type="button">Create Your Account!</button>
-    </section>
     <nav role="navigation" class="nav">
-            <ul>
-              <a href="#"><li class="nav-left"><span class="nav-logo">My Picture Bank</span></li></a>
-              <a href="#about"><li class="nav-left nav-hover">About</li></a>
-              <a href="#register"><li class="nav-left nav-hover">Register</li></a>
-              <a href="#log-in"><li class="nav-right nav-hover log-in" id="demo-button">Sign In / Demo Account</li></a>
-            </ul>
-            <div class="handle"><span class="handle-menu">My Picture Bank</span><p class="bars" aria-hidden="true">☰ Menu</p></div>
-    </nav> 
+          <div class="handle"><span class="handle-menu"><a href="index.html">My Picture Bank</a></span><p class="bars" aria-hidden="true">☰ Menu</p></div>
+              <div class="nav-right nav-hover">Sign In/ Demo Account</div>
+              <div class="nav-logo">My PictureBank</div>
+              <div class="nav-left nav-hover log-in" id="signupLearn">Sign Up / Learn More</div> 
+      </nav> 
+      <p id="explain">Search, Dowload, Save and Share your favorite photos!</p>
+    <div class="imgholder"></div>
+        <div class="aboutMPB">What Is My PictureBank?</div>
+
+      <div class="mypiclogo">
+        <div class="row">
+     <!-- <h1 class="logo">My PictureBank</h1> -->
+        </div>
+      </div>
+    <!-- <div class="js-start-display" id="start-page"> -->
+    <!-- </div>    -->
     <section role="region">
+             <!-- <section role="region" class="learn-button">-->
+      
+   <!-- </section>-->
+            
             <div id="about">
               <div class="row">
                 <div class="col-12"> 
                   <div class="about-text">
-                    <h2>What is My PictureBank? <img src="./images/-icon.png" class="-icon" alt=" logo"></h2>
+                    <p id="whatis">It's This Simple . . .</p>
 
                   </div>
                 
                   <div class="col-4 description">
                     <div class="image-wrapper">
-                      <img src="./images/register-icon.png" role="none" class="register-icon">
+                      <img src="pictures/register.jpeg" role="none" class="register-icon">
                     </div>
-
                     <div class="description-paragraph-1"> 
                       <p class="paragraph"> 
-                          Register your own personal account.
-                      </p>
+                          Register your own personal account.</p>
                     </div>
                   </div>
 
                   <div class="col-4 description">
                     <div class="image-wrapper">
-                      <img src="" role="none" class="brew-icon">
+                      <img src="pictures/search1.jpg" role="none" class="search-icon">
                     </div>
-
                     <div class="description-paragraph-2">
                       <p class="paragraph">
-                          Search for photos using simple keyword or words.
-                      </p>
+                          Search for photos using simple keywords.</p>
                     </div>
                   </div>
 
                   <div class="col-4 description">
-                      <div class="image-wrapper">
-                        <img src="./images/database-icon.png" role="none" class="database-icon">
-                      </div>
-  
-                      <div class="description-paragraph-3">
-                        <p class="paragraph">
-                            Save your favorite photos to your account bank for later use!
-                          </p>
-                        </div>
-                      </div>
-                          </a><a>
-                        </div>
+                    <div class="image-wrapper"><img src="pictures/sharepic.jpg" role="none" class="share-icon">
                     </div>
+  
+                    <div class="description-paragraph-3">
+                        <p class="paragraph">Save your favorite photos to your account bank for later use!</p>
+                    </div>
+                   </div>
+                  <div class="gosign">Start Here</div>
                   </div>
                 </div>
-              <div id="register">
-                  <hr>
-              <div class="row">
+              </div>
+            </div>
+          </div>
+        </section>
+          <div id="register">
+                  <!-- <hr> -->
+              <!-- <div class="row final"> -->
                 <div class="col-12">
                   <div class="register-text">
-                    <h2>Sign Up Here</h2>
-                    <p>Create a username and password.</p>
-                    <p role="region" class="feedback" style="display:none">Username already taken!</p>
-                    <form class="register-form">
+                    <h2>Sign In Here</h2>
+                    <p>Enter username and password.</p>
+                    <form class="register-form" action="http://localhost:3000/login" 
+                    method="post">
                       <fieldset>
                         <label for="username">Username: </label>
                         <input type="text" id="username" name="username" class="username"><br>
                         <label for="password">Password: </label>
                         <input type="password" id="password" name="password" class="password"><br>
-                        <button class="register-button" name="button" aria-label="register">Register</button>
+                        <button class="register-button" name="button" aria-label="register">Sign In</button>
                       </fieldset>
                     </form>
-                    
+                    <!-- <h2>Sign Up Here</h2>
+                    <p>Create a username and password.</p>
+                    <form class="register-form" action="http://localhost:3000/signup" 
+                    method="post">
+                      <fieldset>
+                        <label for="username">Username: </label>
+                        <input type="text" id="username" name="username" class="username"><br>
+                        <label for="email">Email Adress: </label>
+                        <input type="text" id="email"  class="email"><br>
+                        <label for="password">Password: </label>
+                        <input type="password" id="password" name="password" class="password"><br>
+                        <button class="register-button" name="button" aria-label="register">Register</button>
+                      </fieldset>
+                    </form> -->
+                    </div>
                     <footer class="footer-info">
                       <a></a> 
                       <a></a>
@@ -104,11 +112,15 @@
                       <br>
                       <br>
                       Created
+                      <br>
+                      <br>
+                      Have A Great Day! :)
                     </footer>
-                  </div>
                 </div>
               </div>
-            </div>
+            <!-- </div> -->
           </section>
         </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script type="text/javascript" src="index.js"></script>
 </body>
