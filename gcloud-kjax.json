@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "my-project-kjax",
+  "private_key_id": "0ce44184c89eb89b7789b7bb5815efda0b4b4f4c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEuwIBADANBgkqhkiG9w0BAQEFAASCBKUwggShAgEAAoIBAQCmTQkerxpFQ0A4\n42iYssTKI1Vwfhg1uAbam+Qec+R4EMKyZXUqzqdKce8Sz2jd25CRbV51kulig3s8\nh6OBhYpTT1z1PBPWA2br8E7vcbX69qclIK8gPnv4oTCEM6As1yX/gBdQjnekxRS+\nSTgvnA0GOBi0zi4AmTWHvMJ1sHYfhShfRsX5RQqxojnU8rL+4f9oZuPc9cieT69e\n7wKXde4DYRbNzYVg/L/ykEQBu+4x5matfhf7NF/jAXn7/yHZbxjALOxCciM8MeAW\nU+/CaRkcCkHY6Ujh12UB9X3c+mwSiDgsn+4xMHo1HA8c+SynlcawThg2GvKkgwC1\nVmb5Pa3NAgMBAAECgf9r1YgUXXarcvAx80PfwAvbBw5f42PPcYUAPBWvqXZ8ZGHb\nS+6t01Km8zoS+GsHcVhM9J5Lnve26Yr/tPRRCEapvsyIOGykWZBjbW/B0/oswcOg\nT5E/V0UL83mCP/edG+WHx4dWtQrfzOumd9P3Czlmzvk2RHuP58jOO5fcuI/f32vo\n3gGRHltnj+AYRPuItsdgTJjE3ULmemLO7A9g38B2fRw4l6g9+z4k2y/kjCxp21YL\n23tH0ndYEdHagLVkAwWbV/lbRJeEvX3GdiADTobIZDKMZi2XgSJ9pYwpmSb7PfUC\nlGQzq16ZNB0qX3WVaFr3+pUk+yyyn7sowKfyJakCgYEA3wPJYLqEYfXiQg9zwLhM\n7+wHmGhWXYSaIh4RTpE8UjDJvdPjCcNNCDrlXIoVOE3pLk8lVlSscdzzkSODgthp\nCULGfFwN3GSxkIFTrywxbUb7vag+7k0lHHHKGDhg9Xv8lDwTHvKZ+Zgrx2AiTzZW\nfvRVKh1mLdqMsHQ99iuDiY8CgYEAvuXW+J+3hf+66OEIFIGnFYP2eBLBTJ680jWY\ngjYiRnvb3IIV2fGFVNNGJxVclZCqVEbqcsmIUgIkyh7s3/B9tqHZNDfA4u4fI5s+\nF8JGQtOkIyBS3zin6PS/YtpZv7fdeF7CKpHFbbGlKFM4madto68eolcQzomAcoQ0\nfBBYDOMCgYBLj5/iiy+hdUsU8OFaUdeXjtQ/+lIQ24XRu3hHs4PJoUgpbipFu4tV\nF4dw5EQuUI+KJjzTVFsdNSy9Z1f+tE5aWeqgZhw4KVHUUU1GU+XnTZ6r8t5npXHG\ngnNj425OnpTEsNoVqUMsQzfKFLNrPVDvMN/OJinhrWPvwWLhDntB1wKBgQCZWrqf\ncG9WTmIwwtZi4uT++8v8GdT/YGX/2N5zfFl8lfPB6R70vnmF81PgAeEmpdiva2jc\nXdoNR3uWg9F29ROIq+x5bnCd3P1W9VekboVTGgI51bW9bR42nqdBGngO8/4OvNDu\nsbwQqy0qf/BwP3hsjjnl4Fu4D+4IEPy4zchuUQKBgHQ9FklpOWeo7f3zCKi1ta9I\nMkdhKymin/tRapNBMbafvDD5Sm+ddgioEKOb0jow78Kg8sZrjDTwTzItHG/cLwk5\nBC+BiHJgig8DD+e1tYIQRbIhoAeU4jj5zYBv1PCJCNm1CPVGLOw71DuL0m2Cyisc\nHf77NLmCcwkDUik64xe/\n-----END PRIVATE KEY-----\n",
+  "client_email": "mypicturebank@my-project-kjax.iam.gserviceaccount.com",
+  "client_id": "100640808156129957688",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mypicturebank%40my-project-kjax.iam.gserviceaccount.com"
+}

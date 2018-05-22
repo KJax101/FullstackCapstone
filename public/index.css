@@ -62,6 +62,7 @@
     cursor: pointer;
     color: #B88E53;
     align-self: flex-start;
+    width: 15%;
     margin-top: 40px;
     padding-left: 50px;
     padding-bottom: 12px;
@@ -71,6 +72,7 @@
     cursor: pointer;
     color: #B88E53;
     align-self: flex-start;
+    width: 15%;
     margin-top: 40px;
     padding-right: 50px;
     padding-bottom: 20px;
@@ -133,6 +135,40 @@
       padding-bottom: 0px;
       font-family: Homenaje;
   }*/
+
+
+form {
+    float: right;
+    padding-right: 100px;
+}
+
+input#image-file {
+    width: 200px;
+}
+
+.displayImage > img {
+    width: 250px;
+    margin-left: 75px;
+}
+
+#showImages {
+  margin-left: 15px;
+  padding-top: 100px;
+  text-align: left;
+
+}
+
+.submitpic {
+  margin-right: 30px;
+}
+
+.prioritizeButton {
+  margin-left: 35px;
+}
+
+.deleteButton {
+  margin-left: 25px;
+}
 
  .aboutMPB {
    cursor: pointer;

@@ -19,7 +19,7 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  email: {type: String, default: ''},
+  email: {type: String},
   userAccountImages: [imageSchema]
 });
 

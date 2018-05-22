@@ -1,4 +1,3 @@
-//
 <!DOCTYPE html>
 <html lang = "en">
 <head>
@@ -7,15 +6,32 @@
   <title>FullstackCapstone · Thinkful</title>
   <link href="index.css" rel="stylesheet" type="text/css" />
 </head>
-<h1>This Is Your PictureBank! (This is where the user's acount page will be located) <br><br>
-	Search for pics in searchbox on upper left under navbar<br><br>
-	- Then button "Add pic to My PictureBank" = updated account page.
-	<br><br>
-	Updated Acct page - Shows picture thumbs as a list top to bottom on left side, with buttons, 'fullsize/download', remove', 'move up', 'move down' button functionality listed to the right of each picture<br>
-	</h1>
+
+<main role="main">
+    <nav role="navigation" class="nav">
+          <div class="handle"><span class="handle-menu"><a href="index.html">My Picture Bank</a></span><p class="bars" aria-hidden="true">☰ Menu</p></div>
+              <div class="nav-right nav-hover">View Your Collection</div>
+              <div class="nav-logo">My PictureBank</div>
+              <div class="nav-left nav-hover log-in" id="signupLearn">Sign Out</div> 
+              </nav>
+              <p id="explain">Welcome to Your PictureBank Account!</p>
+
+
+<form enctype="multipart/form-data" id="uploadform">
+      <input name="image-file" id="image-file" type="file">
+      <button type="submit" class="submitpic" id="submitpic">Submit</button>
+    </form>
+
+  <div id="showImages">
+   <div class="displayImage">
+   <img src="TempPics/pickers.jpg" alt="">
+    <button class="prioritizeButton">Prioritize Image</button>
+    <button class="deleteButton">Delete Image</button>
+    </div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
- <!--  <script type="text/javascript" src="index1.js"></script> -->
+  <script type="text/javascript" src="index2.js"></script>
 
   <script type="text/javascript">
     // $( document ).ready(function() {
@@ -28,7 +44,25 @@ $.ajax({
   .done(function( data ) {
    console.log(data)
   });
-});
+
+$("#uploadform").submit(function(e) {
+          e.preventDefault();            
+        var data = new FormData();
+        data.append('photo', $('#image-file')[0].files);
+          console.log(data)
+        // $.ajax({
+        //     url: "http://localhost:3000/user",
+        //     type: "POST",
+        //     data: data,
+        //     processData: false,
+        //     contentType: false,
+        //     success: function (data) {
+        //         console.log(data);
+        //     }
+        // });
+    return false;
+
+})
   </script>
 
 

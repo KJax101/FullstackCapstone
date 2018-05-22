@@ -2,9 +2,9 @@ $(function() {
 console.log('onload happening');
 
 var slideIndex = 0;
+var counter = 6
 carousel();
 
-var counter = 0
 function carousel() {
   let array = ["CarouselPictures/cheetah22.jpg", "CarouselPictures/astronaut.jpg", 
   "CarouselPictures/mountains.jpg", "CarouselPictures/tokyo.jpg", "CarouselPictures/cruise.jpg", "CarouselPictures/orchestra.jpg", 
@@ -49,3 +49,6 @@ function carousel() {
   });
   });
 });
+
+
+
