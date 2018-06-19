@@ -58,6 +58,10 @@
   div#signupLearn {
     margin-right: 40px;
 }
+
+#signout {
+  margin-right: 40px;
+}
   .nav-left {
     cursor: pointer;
     color: #B88E53;
@@ -98,8 +102,8 @@
 .imgholder {
   /* left: 0px; */
   top: 0px;
-  min-height: 600px;
-  max-height: 600px;
+  min-height: 500px;
+  max-height: 500px;
   background-size: cover;
   width: 100%;
    /* -moz-box-shadow: inset 90px 90px 90px #000000;
@@ -147,12 +151,45 @@ input#image-file {
 }
 
 .displayImage > img {
-    width: 250px;
-    margin-left: 75px;
+    width: 200px;
+    height: 200px;
+    /*margin-left: 75px;*/
+}
+
+#showImages > img {
+  width: 200px;
+  height: 200px;
+}
+
+.acctImage {
+  width: 200px;
+  height: 200px;
+}
+
+.imgparent {
+  display:block;
+  width:100%;
+  clear:both;
+}
+
+.imgparent > img,.imgparent > button {
+  float:left;
+  display:inline-block;
+  width: 200px;
+  height: 200px;
+}
+
+.imgparent > img {
+  width: 200px; /* make this a percentage or something relative later for responsive */
+  height: 200px;
 }
 
 #showImages {
-  margin-left: 15px;
+  /*display: flex;*/
+  flex-direction: column;
+  width: 1000px;
+  height: 200px;
+  margin-left: 75px;
   padding-top: 100px;
   text-align: left;
 
@@ -163,11 +200,17 @@ input#image-file {
 }
 
 .prioritizeButton {
-  margin-left: 35px;
+  /*margin-left: 35px;*/
+  width: 110px;
+  height: 110px;
+  font-size: 16px;
 }
 
 .deleteButton {
-  margin-left: 25px;
+ /* margin-left: 25px;*/
+  width: 110px;
+  height: 110px;
+  font-size: 16;
 }
 
  .aboutMPB {
@@ -344,13 +387,13 @@ input#image-file {
   }
   
   button {
-    margin-top: 20px;   
+    /*margin-top: 20px;   
     margin-bottom: 100px; 
     padding: 10px;
     width: 160px;
     padding-top: 5px;
     padding-bottom: 5px;
-    border-radius: 6px;
+    border-radius: 6px;*/
     background-color: #B88E53;
     color: white;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);

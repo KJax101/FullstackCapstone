@@ -1,4 +1,3 @@
-
 //importing express app as the variable
 var express = require('express');
 // creating an (instance) of express
@@ -20,7 +19,7 @@ var logger = require('morgan');
 var mongoose = require('mongoose');
 var {User} = require('./models/user');
 var AWS = require("aws-sdk")
-// var s3 = new AWS.S3()
+var s3 = new AWS.S3({ accessKeyId: "AKIAJCDYZDIDLL6XNNKQ", secretAccessKey: "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", region: 'us-east-2', stage: 'prod'});
 var passport = require("passport")
 var jwt = require("jsonwebtoken")
 const { localStrategy, jwtStrategy } = require('./auth');
@@ -30,18 +29,21 @@ var albumBucketName = "mypicturebank";
 var bucketRegion = 'us-east-2';
 var IdentityPoolId = 'us-east-2:cd660831-fb37-42df-8eec-2e88958aa5ca';
 
-AWS.config.update({
-  region: bucketRegion,
-  credentials: new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: IdentityPoolId
-  })
-  // accessKeyId: process.env.aws_access_key_id,
-  // secretAccessKey: process.env.aws_secret_access_key
-});
 
-var s3 = new AWS.S3({
-  apiVersion: '2006-03-01'
-});
+// AWS.config.update({
+//   region: bucketRegion,
+//   // see lines 42=45
+//   // credentials: new AWS.CognitoIdentityCredentials({
+//   //   IdentityPoolId: IdentityPoolId
+//   // })
+//   accessKeyId: "AKIAJCDYZDIDLL6XNNKQ", // process.env.aws_access_key_id,
+//   secretAccessKey: "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" // process.env.aws_secret_access_key
+// });
+
+// not usre about this below
+// var s3 = new AWS.S3({
+//   apiVersion: '2006-03-01'
+// });
 
 AWS.config.logger = process.stdout
 
@@ -56,10 +58,25 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 //support parsing of application/x-www-form-urlencoded post data
 app.use(bodyParser.urlencoded({ extended: true }));
+// Enable CORS headers
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Acccept");
+  next();
+});
+
+/* This is for testing without a database connection:
+function verifyFakeToken(req, res, next) {
+  console.log("Verifying fake token");
+  next();
+}
+*/
+
+
 
 //DB Connection using (mongodb://<dbuser>:<dbpassword>@ds011735.mlab.com:11735/kgfullstackcap)
-//var mongoConnectString = process.env.DATABASE_URL
-mongoose.connect(DATABASE_URL, function(err){
+var mongoConnectString = process.env.DATABASE_URL
+ mongoose.connect(DATABASE_URL, function(err){
   if(err) return console.log(err)
     console.log("Connected to mLab DB")
 });
@@ -113,9 +130,14 @@ const createAuthToken = function(user) {
         expiresIn: 86400 // expires in 24 hours
       });
 };
+app.get('/logout', function(req, res){
+  app.locals.authToken = ""
+  res.sendFile(path.join(__dirname, '/public', 'index.html'))
+});
 
 app.post('/login', localAuth, function(req, res){
   const authToken = createAuthToken(req.user.serialize());
+  console.log("define authtoken")
   if (authToken){
     //res.header('x-auth-token', authToken)
     //res.set({
@@ -144,14 +166,15 @@ app.post('/login', localAuth, function(req, res){
   })
     //res.json(authToken)
   }
-  else {res.sendFile(path.join(__dirname, '/public', 'index.html'))};
+  else {res.redirectsendFile(path.join(__dirname, '/public', 'accountpg.html'))};
   });
 
 function verifyToken(req, res, next) {
     var token = app.locals.authToken
     if (!token)
     {
-      return res.status(403).send({ auth: false, message: 'No token provided.' });
+      console.log('No token provided')
+        return res.status(403).send({ auth: false, message: 'No token provided.' });
     }
     else{
       console.log("VERIFYING")
@@ -166,6 +189,7 @@ function verifyToken(req, res, next) {
   }
 app.use(express.static(path.join(__dirname, 'public')))
 app.get("/user",verifyToken, function(req,res){
+  console.log('using get /user')
   //console.log(app.locals.authToken)
   console.log(req.user)
 
@@ -185,39 +209,123 @@ app.post('/refresh', jwtAuth, (req, res) => {
 
 var formidable=require('formidable')
 var fs=require('fs')
+
+
+app.get('/getimages', verifyToken, function(req, res) {
+  console.log('Getting images')
+
+  // Get images this user has in S3 (with the user prefix)
+ var albumName = req.user.username;
+  var albumPhotosKey = encodeURIComponent(albumName) + '/';
+  s3.listObjects({Prefix: albumPhotosKey, Bucket: albumBucketName}, function(err, data) {
+    if (err) {
+      // return alert('There was an error viewing your album: ' + err.message);
+      console.log('There was an error viewing your album: ' + err.message)
+      
+    }
+    var urls = [];
+    var c = data['Contents'] || new array();
+    console.log("Viewing album:" + c['Prefix'])
+    for (var i = 1; i < c.length; i++) {
+        console.log("E: " + c[i]['Key']);
+        urls.push("https://"+albumBucketName+".s3.amazonaws.com/"+c[i]['Key']);
+    }
+    // Return the URLs
+    res.send(urls)
+  }
+)
+  
+  // and return as an array
+});
+
 app.post('/upload', verifyToken, function(req, res){
-     var form = new formidable.IncomingForm();
+
+    console.log('STEP1: in upload function');
+
+   var form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
       console.log(files)
-      var oldpath = files['image-file'].path;
+      // var oldpath = files['photo'].path;
       // console.log(files['image-file'].path)
-      var newpath = '/Users/user/workspace/FullstackCapstone/public/TempPics/' + files['image-file'].name;
-      fs.rename(oldpath, newpath, function (err) {
-        if (err) throw err;
-        var file = newpath;
-        var fileName = files['image-file'].name;
-        var albumName = req.user.username;
-        var albumPhotosKey = encodeURIComponent(albumName) + '/';
-
-        var photoKey = albumPhotosKey + fileName;
-        s3.upload({
-          Key: photoKey,
-          Bucket: albumBucketName,
-          Body: file,
-          ACL: 'public-read'
-        }, function(err, data) {
-          if (err) {
-            return console.log('There was an error uploading your photo: ', err.message);
+     // var newpath = '/Users/user/workspace/FullstackCapstone/public/TempPics/' + files['image-file'].name;
+ //     fs.rename(oldpath, newpath, function (err) {
+  //      if (err) throw err;
+        //var file = files['photo'].path;
+        var file = fs.readFile(files['photo'].path, function (err, data) {
+          if (err) { 
+            console.log("CAN'T READ FILE");
+            throw err;
           }
-          console.log('Successfully uploaded photo.');
-          var photos = viewAlbum(albumName);
-          res.json(photos)
-          });
-      });
+
+          var fileName = files['photo'].name;
+          var albumName = req.user.username;
+          var albumPhotosKey = encodeURIComponent(albumName) + '/';
+
+          var photoKey = albumPhotosKey + fileName;
+          console.log("photo key " + photoKey)
+          s3.upload({
+            Key: photoKey,
+            Bucket: albumBucketName,
+            Body: data, // file,
+            ACL: 'public-read'
+          }, function(err, data) {
+            if (err) {
+              return console.log('There was an error uploading your photo: ', err.message);
+            }
+            console.log(data);
+            // var photos = viewAlbum(albumName);
+            // res.json(photos)
+            var albumPhotosKey = encodeURIComponent(albumName) + '/';
+  s3.listObjects({Prefix: albumPhotosKey, Bucket: albumBucketName}, function(err, data) {
+    if (err) {
+      // return alert('There was an error viewing your album: ' + err.message);
+      console.log('There was an error viewing your album: ' + err.message)
+    }
+    // `this` references the AWS.Response instance that represents the response
+    var href = this.request.httpRequest.endpoint.href;
+    var bucketUrl = href + albumBucketName + '/';
+    var photos = data.Contents
+    console.log("photos from /upload", photos)
+    var urls = [];
+    var c = photos;
+    console.log("Viewing album:" + c['Prefix'])
+    for (var i = 1; i < c.length; i++) {
+        console.log("E: " + c[i]['Key']);
+        urls.push("https://"+albumBucketName+".s3.amazonaws.com/"+c[i]['Key']);
+    }
+    // Return the URLs
+    res.send(urls)
+    // return photos;
+    })
+            });
+          // mongo-save imgFilename
+        //   console.log("MongoTestingStatement!!!", req.user)
+        //   User.find({req.user.username})
+        //     .count()
+        //     .then(count => {
+        //       if (count == 1
+        //     })
+        // });
+     });
     });
   console.log("uploaded")
   console.log(req.body);
 })
+
+// deletingPhoto from aws bucket
+app.post("/deletePhoto", function(req,res){
+  s3.deleteObject({
+            Key: req.body.photoKey,
+            Bucket: req.body.albumBucketName
+          }, function(err, data) {
+    if (err) {
+      return console.log('There was an error deleting your photo: ', err.message);
+    }
+    console.log('Successfully deleted photo.');
+    res.json({Success: "Successfully deleted"})
+  });
+})
+
 
 //Store Data - layout
 
@@ -225,7 +333,7 @@ app.post('/upload', verifyToken, function(req, res){
 app.get("/", function(req, res){
   // instructing server to return the html by looking in 2 places (arguments) using the
   //filename and the path
-console.log("home page loadeddddddd")
+console.log("home page loaded")
 
 res.sendFile(path.join(__dirname, '/public', 'index.html'))
   });
@@ -259,14 +367,14 @@ res.sendFile(path.join(__dirname, '/public', 'index.html'))
 
 function viewAlbum(albumName) {
   var albumPhotosKey = encodeURIComponent(albumName) + '/';
-  s3.listObjects({Prefix: albumPhotosKey}, function(err, data) {
+  s3.listObjects({Prefix: albumPhotosKey, Bucket: albumBucketName}, function(err, data) {
     if (err) {
-      return alert('There was an error viewing your album: ' + err.message);
+      // return alert('There was an error viewing your album: ' + err.message);
+      console.log('There was an error viewing your album: ' + err.message)
     }
     // `this` references the AWS.Response instance that represents the response
     var href = this.request.httpRequest.endpoint.href;
     var bucketUrl = href + albumBucketName + '/';
-
     var photos = data.Contents
     return photos;
     })

@@ -1,4 +1,3 @@
-//
 'use strict';
 const { Strategy: LocalStrategy } = require('passport-local');
 
@@ -11,8 +10,10 @@ const { JWT_SECRET } = require('../config');
 
 const localStrategy = new LocalStrategy((username, password, callback) => {
   let user;
+  console.log("inpassport")
   User.findOne({ username: username })
     .then(_user => {
+      console.log(user)
       user = _user;
       if (!user) {
         // Return a rejected promise so we break out of the chain of .thens.
@@ -22,6 +23,7 @@ const localStrategy = new LocalStrategy((username, password, callback) => {
           message: 'Incorrect username or password'
         });
       }
+      console.log("validatingpaswprd")
       return user.validatePassword(password);
     })
     .then(isValid => {
@@ -31,9 +33,11 @@ const localStrategy = new LocalStrategy((username, password, callback) => {
           message: 'Incorrect username or password'
         });
       }
+      console.log("validUser")
       return callback(null, user);
     })
     .catch(err => {
+      console.log(err)
       if (err.reason === 'LoginError') {
         return callback(null, false, err);
       }
@@ -55,3 +59,4 @@ const jwtStrategy = new JwtStrategy(
 );
 
 module.exports = { localStrategy, jwtStrategy };
+

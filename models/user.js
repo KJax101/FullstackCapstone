@@ -4,9 +4,8 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
 const imageSchema = new mongoose.Schema({
-  filename: String,
-  fileExtension: String,
-  fileCategory: String
+  imgCaption: String,
+  filename: String
 })
 
 const UserSchema = mongoose.Schema({
