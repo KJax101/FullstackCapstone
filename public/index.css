@@ -431,6 +431,10 @@ footer {
   font-family: 'Homenaje';
   padding-top: 300px;
   padding-bottom: 0px;
+  width: 100%;
+  clear: both;
+  margin: auto;
+  float: none;
 }
 
   /*** responsive design ***/

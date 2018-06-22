@@ -35,7 +35,7 @@
         </main>
 
         <footer class="footer-info"></footer>
- 
+
   <img src="https://s3.us-east-2.amazonaws.com/mypicturebank/joetest/mountains.jpg">
 
   <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
@@ -50,15 +50,17 @@
     $.ajax({
     method: "GET",
     url: "http://localhost:3000/logout"
+      }).done(function() {
+     window.location.href = "/";
     })
   })
   })
 
- 
 
-  function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-  }
+
+  // function getRndInteger(min, max) {
+  //   return Math.floor(Math.random() * (max - min)) + min;
+  // }
 
 
 
@@ -77,8 +79,8 @@ $.ajax({
 
 
 $("#uploadform").submit(function(e) {
-		// console.log("In handler");
-		// alert('inhandler');
+    // console.log("In handler");
+    // alert('inhandler');
         e.preventDefault();
         var files = $('#image-file').get(0).files
         var formData = new FormData();
@@ -106,10 +108,19 @@ $("#uploadform").submit(function(e) {
           console.log("uploadurls", urls)
           $('#showImages').empty()
         for(var i = 0; i < urls.length; i++) {
-          $('#showImages').append("<div class='imageLayout'><img class='acctImage' src='"+ urls[i] +"'><button class='deleteButton'>Delete</button></div>");
+
+          $('#showImages').append(`
+          <div class="imageLayout" id="imagePlacer${i}">
+          <img class="acctImage" src="${urls[i]}" id="img${i}">
+          <span id="captionDisplay${i}"></span>
+          <input id="captionInput${i}" style="display: none" />
+          <button id="saveCaption${i}" onclick="saveCaption(this)" style="display: none">Save Caption</button>
+          <button class="deleteButton" onclick="deleteImg(this)" id="deleteme${i}">Delete Image</button>
+          <button class="addCaptionButton" onclick="captionImg(this)" id="captionme${i}">Caption Image</button>
+          </div>`)
   }
 
-		// alert('in response');
+    // alert('in response');
   //        console.log(data)
         });
 
@@ -136,16 +147,52 @@ function deleteImg(deleteObject){
         });
 }
 
+function captionImg(captionObject){
+  console.log(captionObject.id)
+  var id = captionObject.id.substr(this.length - 1);
+  $(`#captionInput${id}`).show();
+  $(`#saveCaption${id}`).show();
+}
+
+function saveCaption(saveButton){
+  var id = saveButton.id.substr(this.length - 1);
+  var src = $(`#img${id}`).attr("src")
+  var fileName =  src.split("/")[4];
+  var caption = $(`#captionInput${id}`).val();
+  console.log(fileName)
+  $.ajax({
+            url: "http://localhost:3000/captionPhoto",
+            type: "POST",
+            data: {
+              imgCaption: caption,
+              filename: fileName
+            }
+        }).done(function(data) {
+          console.log("delete", data.success)
+          $(`#captionInput${id}`).hide();
+          $(`#saveCaption${id}`).hide();
+          $(`#captionDisplay${id}`).html(caption);
+        });
+}
+
 function displayImages() {
   // get the backend url
   // get the specific user's folder
   console.log("Getting urls")
-  $.get('http://localhost:3000/getimages', null, function(urls) {
-	// console.log("Got urls: " + urls)
-	// var url = "aws-filepath";
-	for(var i = 0; i < urls.length; i++) {
-
-   $('#showImages').append(`<div class="imageLayout" id="imagePlacer${i}"> <img class="acctImage" src="${urls[i]}" id="img${i}"> <button class="deleteButton" onclick="deleteImg(this)" id="deleteme${i}">Delete Image</button> <button class="prioritizeButton" id="prioritizeme${i}">Prioritize Image</button> </div>`)
+  $.get('http://localhost:3000/getimages', null, function(captionAndUrls) {
+  console.log("Got urls: " + captionAndUrls);
+  // var url = "aws-filepath";
+  for(var i = 0; i < captionAndUrls.length; i++) {
+    console.log(captionAndUrls[i])
+   $('#showImages').append(
+  `<div class="imageLayout" id="imagePlacer${i}">
+   <img class="acctImage" src="${captionAndUrls[i].url}" id="img${i}">
+   <span id="captionDisplay${i}">${captionAndUrls[i].caption}</span>
+   <input id="captionInput${i}" style="display: none" />
+   <button id="saveCaption${i}" onclick="saveCaption(this)" style="display: none">Save Caption</button>
+   <button class="deleteButton" onclick="deleteImg(this)" id="deleteme${i}">Delete Image</button>
+   <button class="addCaptionButton" onclick="captionImg(this)" id="captionme${i}">Caption Image</button>
+   </div>`)
    }
 
 //    $('.imgparent').each(function(i,v) {
@@ -153,7 +200,7 @@ function displayImages() {
 // })
 
 // $(`#prioritizeme${i}`).click(function (){
-//     let parentDivIndex=parseInt($(this).parent().css('order'));          
+//     let parentDivIndex=parseInt($(this).parent().css('order'));
 //     //the order property for the prior image must be one less
 //     priorDivIndex=parentDivIndex-1;
 //     if (priorDivIndex==0) {
@@ -161,7 +208,7 @@ function displayImages() {
 //       priorDivIndex=$('#showImages').children().length;
 //     }
 
-//     //looking for the imgparent div that has the priorDivIndex value and give it the parentDivIndex value (i.e. move the one before down) 
+//     //looking for the imgparent div that has the priorDivIndex value and give it the parentDivIndex value (i.e. move the one before down)
 //     $(".imgparent").each(function(i,v) {
 //       if ($(v).css('order') == priorDivIndex) {
 //           $(v).css('order',parentDivIndex);
@@ -169,11 +216,11 @@ function displayImages() {
 //     });
 
 //     //moving the parent div on the one you just clicked on up
-//     $(this).parent().css('order',priorDivIndex); 
+//     $(this).parent().css('order',priorDivIndex);
 //  });
 
-	// $('#showImages').append("<div class='imageLayout'><img class='acctImage' src='"+ urls[i] +"'><button class='deleteButton'>Delete</button></div>");
-	// }
+  // $('#showImages').append("<div class='imageLayout'><img class='acctImage' src='"+ urls[i] +"'><button class='deleteButton'>Delete</button></div>");
+  // }
    $('.footer-info').append('<p>This is the footer2</p>')
 
   })
@@ -182,6 +229,3 @@ function displayImages() {
 
 
   </script>
-
-
-
