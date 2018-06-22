@@ -28,7 +28,7 @@ const localAuth = passport.authenticate('local', {session: false});
 var albumBucketName = "mypicturebank";
 var bucketRegion = 'us-east-2';
 var IdentityPoolId = 'us-east-2:cd660831-fb37-42df-8eec-2e88958aa5ca';
-
+app.use(express.static(path.join(__dirname, 'public')))
 
 // AWS.config.update({
 //   region: bucketRegion,
@@ -104,12 +104,13 @@ return User.find({username})
       return User.create({
         username,
         email,
+        userAccountImages: [],
         password: hash
       });
     })
     .then(user => {
       createAlbum(user.username)
-      return res.status(201).json(user.serialize());
+      res.redirect('index.html');
     })
     .catch(err => {
       // Forward validation errors on to the client, otherwise give a 500
@@ -132,8 +133,12 @@ const createAuthToken = function(user) {
 };
 app.get('/logout', function(req, res){
   app.locals.authToken = ""
-  res.sendFile(path.join(__dirname, '/public', 'index.html'))
-});
+  var filename = "index.html"
+  var options = {
+    root: path.join(__dirname, 'public')
+  }
+    res.status(200).end();
+    });
 
 app.post('/login', localAuth, function(req, res){
   const authToken = createAuthToken(req.user.serialize());
@@ -187,11 +192,11 @@ function verifyToken(req, res, next) {
       });
     }
   }
-app.use(express.static(path.join(__dirname, 'public')))
+
 app.get("/user",verifyToken, function(req,res){
   console.log('using get /user')
   //console.log(app.locals.authToken)
-  console.log(req.user)
+  //console.log(req.user)
 
   // res.set('user', req.user);
   res.json(req.user)
@@ -221,20 +226,41 @@ app.get('/getimages', verifyToken, function(req, res) {
     if (err) {
       // return alert('There was an error viewing your album: ' + err.message);
       console.log('There was an error viewing your album: ' + err.message)
-      
+
     }
-    var urls = [];
+
+    var userName = req.user.username
     var c = data['Contents'] || new array();
-    console.log("Viewing album:" + c['Prefix'])
-    for (var i = 1; i < c.length; i++) {
-        console.log("E: " + c[i]['Key']);
-        urls.push("https://"+albumBucketName+".s3.amazonaws.com/"+c[i]['Key']);
-    }
+    //console.log("Viewing album:" + c['Prefix'])
+    connectCaptionsImgs(c, userName)
     // Return the URLs
-    res.send(urls)
+
   }
 )
-  
+function connectCaptionsImgs(c, username){
+User.find({username})
+    .then(user =>{
+      var captionAndUrls = [];
+      console.log('USER STUFFF', user)
+      var images = user[0].userAccountImages
+      console.log("USER IMAGES", images)
+      for(var j = 0; j < images.length; j++){
+        for (var i = 1; i < c.length; i++) {
+            //console.log("E: " + c[i]['Key']);
+            var url = "https://"+albumBucketName+".s3.amazonaws.com/"+c[i]['Key']
+            var fileName =  url.split("/")[4];
+            if(images[j].filename == fileName){
+              var newObj = {caption: images[j].imgCaption, url: url};
+              console.log("NEWOBJJJ", newObj)
+              captionAndUrls.push(newObj);
+            }
+        }
+      }
+      console.log("RESPONSE STUFFFFFF", captionAndUrls);
+      res.json(captionAndUrls)
+    })
+    .catch(err => { console.log(err) })
+}
   // and return as an array
 });
 
@@ -244,7 +270,7 @@ app.post('/upload', verifyToken, function(req, res){
 
    var form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
-      console.log(files)
+      //console.log(files)
       // var oldpath = files['photo'].path;
       // console.log(files['image-file'].path)
      // var newpath = '/Users/user/workspace/FullstackCapstone/public/TempPics/' + files['image-file'].name;
@@ -252,7 +278,7 @@ app.post('/upload', verifyToken, function(req, res){
   //      if (err) throw err;
         //var file = files['photo'].path;
         var file = fs.readFile(files['photo'].path, function (err, data) {
-          if (err) { 
+          if (err) {
             console.log("CAN'T READ FILE");
             throw err;
           }
@@ -272,7 +298,7 @@ app.post('/upload', verifyToken, function(req, res){
             if (err) {
               return console.log('There was an error uploading your photo: ', err.message);
             }
-            console.log(data);
+            //console.log(data);
             // var photos = viewAlbum(albumName);
             // res.json(photos)
             var albumPhotosKey = encodeURIComponent(albumName) + '/';
@@ -285,12 +311,12 @@ app.post('/upload', verifyToken, function(req, res){
     var href = this.request.httpRequest.endpoint.href;
     var bucketUrl = href + albumBucketName + '/';
     var photos = data.Contents
-    console.log("photos from /upload", photos)
+    //console.log("photos from /upload", photos)
     var urls = [];
     var c = photos;
     console.log("Viewing album:" + c['Prefix'])
     for (var i = 1; i < c.length; i++) {
-        console.log("E: " + c[i]['Key']);
+        //console.log("E: " + c[i]['Key']);
         urls.push("https://"+albumBucketName+".s3.amazonaws.com/"+c[i]['Key']);
     }
     // Return the URLs
@@ -299,31 +325,87 @@ app.post('/upload', verifyToken, function(req, res){
     })
             });
           // mongo-save imgFilename
-        //   console.log("MongoTestingStatement!!!", req.user)
-        //   User.find({req.user.username})
-        //     .count()
-        //     .then(count => {
-        //       if (count == 1
-        //     })
-        // });
-     });
+          console.log("MongoTestingStatement!!!", req.user)
+          var userName = req.user.username
+          saveImageToUser(fileName, userName)
+        });
+     // });
     });
+function saveImageToUser(fileName, username){
+User.find({username})
+    .then(user =>{
+      console.log('USER STUFFF', user)
+      var imgObj = {
+        imgCaption: "",
+        filename: fileName
+      }
+      user[0].userAccountImages.push(imgObj);
+
+      user[0].save();
+    })
+    .catch(err => { console.log(err) })
+}
+
   console.log("uploaded")
   console.log(req.body);
 })
-
+app.post("/captionPhoto", verifyToken, function(req,res){
+console.log("USERRRRRRRRRRR CAPTION", req.user)
+var username = req.user.username;
+  User.find({username})
+      .then(user =>{
+        console.log('USER STUFFF', user)
+        var imgObj = {
+          imgCaption: req.body.imgCaption,
+          filename: req.body.filename
+        }
+        var images = user[0].userAccountImages
+        for(var i = 0; i < images.length; i++){
+            if(images[i].filename == imgObj.filename){
+              console.log(imgObj)
+              images[i] = imgObj
+            }
+        }
+        user[0].save();
+      })
+      .catch(err => { console.log(err) })
+    res.json({success: "success"})
+})
 // deletingPhoto from aws bucket
-app.post("/deletePhoto", function(req,res){
+app.post("/deletePhoto", verifyToken, function(req,res){
   s3.deleteObject({
             Key: req.body.photoKey,
             Bucket: req.body.albumBucketName
           }, function(err, data) {
     if (err) {
-      return console.log('There was an error deleting your photo: ', err.message);
+      //return console.log('There was an error deleting your photo: ', err.message);
     }
-    console.log('Successfully deleted photo.');
-    res.json({Success: "Successfully deleted"})
+    //console.log('Successfully deleted photo.');
+    var userName = req.user.username
+    console.log("PHOTO KEY FOR DELETE OBJECT", req.body.photoKey)
+    var fileName = req.body.photoKey.split("/")[1];
+    console.log("GUESSING WHAT THE FILENAME IS", fileName)
+    deleteFromMongo(userName, fileName)
   });
+  function deleteFromMongo(username, filename){
+    User.find({username})
+        .then(user =>{
+          console.log('USER STUFFF', user)
+          // var imgObj = {
+          //   imgCaption: req.body.imgCaption,
+          //   filename: req.body.filename
+          // }
+          var images = user[0].userAccountImages
+          for(var i = 0; i < images.length; i++){
+              if(images[i].filename == filename){
+                user[0].userAccountImages.splice(i, 1);
+              }
+          }
+          user[0].save();
+        })
+        .catch(err => { console.log(err) })
+  }
+    res.json({Success: "Successfully deleted"})
 })
 
 
@@ -333,7 +415,7 @@ app.post("/deletePhoto", function(req,res){
 app.get("/", function(req, res){
   // instructing server to return the html by looking in 2 places (arguments) using the
   //filename and the path
-console.log("home page loaded")
+//console.log("home page loaded")
 
 res.sendFile(path.join(__dirname, '/public', 'index.html'))
   });
@@ -381,6 +463,49 @@ function viewAlbum(albumName) {
 }
 
 //command to listen on a specific port- staring up a server on port 3000
-app.listen(3000, function(){
-  console.log("server running on port 3000");
-});
+// app.listen(3000, function(){
+//   console.log("server running on port 3000");
+// });
+app.post('/loginTest', localAuth, function(req, res){
+  const authToken = createAuthToken(req.user.serialize());
+  console.log("define authtoken")
+  if (authToken){
+  res.status(201).send({authToken: authToken})
+  }
+})
+
+let server;
+
+function runServer() {
+  const port = process.env.PORT || 3000;
+  return new Promise((resolve, reject) => {
+    server = app.listen(port, () => {
+      console.log(`Your app is listening on port ${port}`);
+      resolve(server);
+    }).on('error', err => {
+      reject(err)
+    });
+  });
+}
+
+function closeServer() {
+  return new Promise((resolve, reject) => {
+    console.log('Closing server');
+    server.close(err => {
+      if (err) {
+        reject(err);
+        // so we don't also call `resolve()`
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+// if server.js is called directly (aka, with `node server.js`), this block
+// runs. but we also export the runServer command so other code (for instance, test code) can start the server as needed.
+if (require.main === module) {
+  runServer().catch(err => console.error(err));
+};
+
+module.exports = {app, runServer, closeServer};

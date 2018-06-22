@@ -42,8 +42,3 @@ const User = mongoose.model('User', UserSchema);
 
 // exporting js from one file to another
 module.exports = {User};
-
- 
-
-
-
