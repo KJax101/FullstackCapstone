@@ -141,7 +141,7 @@ it('should allow a user to signup for an account', function(done) {
 
   })
 
-  it ('should allow a user to log out upon button click', function(done){
+  it ('Should allow a user to log out upon button click', function(done){
     chai.request(app)
     .get('/logout') 
     .then(function(res){
