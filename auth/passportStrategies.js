@@ -7,7 +7,8 @@ const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 
 const { User } = require('../models/user');
 const { JWT_SECRET } = require('../config');
-
+JWT_SECRET = JWT_SECRET || "secret"
+    
 const localStrategy = new LocalStrategy((username, password, callback) => {
   let user;
   console.log("inpassport")
