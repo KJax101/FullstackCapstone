@@ -10,8 +10,12 @@ var bodyParser = require('body-parser');
 
 //Importing .env library and assigning as var
 var dotenv = require('dotenv').config();
-const { DATABASE_URL, JWT_SECRET, JWT_EXPIRY} = require('./config');
+let { DATABASE_URL, JWT_SECRET, JWT_EXPIRY} = require('./config');
 
+  // coding for travis testing, required for travis to pass
+    DATABASE_URL = DATABASE_URL || "mongodb://Kjax101:openme99@ds011735.mlab.com:11735/kgfullstackcap"
+    JWT_SECRET = JWT_SECRET || "secret"
+    JWT_EXPIRY = JWT_EXPIRY || "7d"
 
 // Using Morgan for logging entries
 var logger = require('morgan');
