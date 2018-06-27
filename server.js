@@ -88,15 +88,15 @@ let {username, email, password} = req.body;
 return User.find({username})
     .count()
     .then(count => {
-      // if (count > 0) {
-      //   // There is an existing user with the same username
-      //   return Promise.reject({
-      //     code: 422,
-      //     reason: 'ValidationError',
-      //     message: 'Username already taken',
-      //     location: 'username'
-      //   });
-      // }
+      if (count > 0) {
+        // There is an existing user with the same username
+        return Promise.reject({
+          code: 422,
+          reason: 'ValidationError',
+          message: 'Username already taken',
+          location: 'username'
+        });
+      }
       // If there is no existing user, hash the password
       return User.hashPassword(password);
     })
@@ -466,13 +466,13 @@ function viewAlbum(albumName) {
 // app.listen(3000, function(){
 //   console.log("server running on port 3000");
 // });
-app.post('/loginTest', localAuth, function(req, res){
-  const authToken = createAuthToken(req.user.serialize());
-  console.log("define authtoken")
-  if (authToken){
-  res.status(201).send({authToken: authToken})
-  }
-})
+// app.post('/loginTest', function(req, res){
+//   const authToken = createAuthToken(req.user.serialize());
+//   console.log("define authtoken")
+//   if (authToken){
+//   res.status(201).send({authToken: authToken})
+//   }
+// })
 
 let server;
 

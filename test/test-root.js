@@ -4,7 +4,7 @@ const chaiHttp = require('chai-http');
 const {app, runServer, closeServer} = require('../server');
 
 const expect = chai.expect;
-
+const {User} = require('../models/user')
 chai.use(chaiHttp);
 
 describe('root', function() {
@@ -57,23 +57,102 @@ describe('root', function() {
 // });
 
 
-it('should login on POST', function(done) {
-    const testUser = {
-        username: 'nickTestUser', password: '123'};
-    return chai.request(app)
-      .post('/loginTest')
-      .send(testUser)
-    .end(function (err, res) {
-        if (err) done(err);
-        res.should.have.status(201);
-        res.should.be.json;
-        res.body.should.be.a('object');
-        res.body.should.include.keys('authToken');
-        res.body.authToken.should.be.a('string');
-        done()
+it('should allow a user to signup for an account', function(done) {
+  let newUser = {
+    email: "bigdog@gmail.com",
+    username: "bridawk",
+    password:  "1234"
+  }
+
+    chai.request(app)
+      .post('/signup')
+      .send(newUser)
+      .then(function (res) {
+        // chai expect assertion syntax
+        expect(res).to.have.status(200)
+        // after this we should remove "bridawk" from the database
+        // bcs multiple tests will require user being removed each time
+        // so from the database finding the username and replace with newSS
+        User.findOne({username: 'bridawk'})
+          .then(function(user){
+            user.remove()
+            done()
+          })
       })
-  });
+
+})
+
+  it('should allow the user to enter the account page at login', function(done) {
+    let newUser = {
+    email: "bigdog@gmail.com",
+    username: "bridawk",
+    password:  "1234"
+  }
+    let loginInfo = {
+      username: "bridawk",
+      password:  "1234"
+    }
+
+    chai.request(app)
+      .post('/signup')
+      .send(newUser)
+      .then(function (res) {
+        chai.request(app)
+        .post('/login')
+        .send(loginInfo)
+        .then(function(res){
+          expect(res).to.have.status(200)
+          User.findOne({username: 'bridawk'})
+          .then(function(user){
+            user.remove()
+            done()
+          })
+        })
+      })
+  })
+
+  it('should not allow the user to enter the account page at login when username and password are incorrect', function(done) {
+    let newUser = {
+    email: "bigdog@gmail.com",
+    username: "bridawk",
+    password:  "1234"
+  }
+    let loginInfo = {
+      username: "bridawk",
+      password:  "4321"
+    }
+
+    chai.request(app)
+      .post('/signup')
+      .send(newUser)
+      .then(function (res) {
+        chai.request(app)
+        .post('/login')
+        .send(loginInfo)
+        .then(function(res){
+          expect(res).to.have.status(401)
+          User.findOne({username: 'bridawk'})
+          .then(function(user){
+            user.remove()
+            done()
+          })
+        })
+      })
+
+  })
+
+  it ('should allow a user to log out upon button click', function(done){
+    chai.request(app)
+    .get('/logout') 
+    .then(function(res){
+      expect(res).to.have.status(200)
+      done()
+    })
+  }) 
+
 });
+
+
 
 
   

@@ -34,8 +34,6 @@ function displayPicturesAndCaptions(data) {
    }
 }
 
-// this function can stay the same even when we
-// are connecting to real API
 function getAndDisplayUrlsAndCaptions() {
     getUrlsAndCaptions(displayPicturesAndCaptions);
 }
