@@ -49,7 +49,7 @@
     $('#signout').click(function(){
     $.ajax({
     method: "GET",
-    url: "http://localhost:3000/logout"
+    url: "https://quiet-temple-11313.herokuapp.com//logout"
       }).done(function() {
      window.location.href = "/";
     })
@@ -66,7 +66,7 @@
 
 $.ajax({
   method: "GET",
-  url: "http://localhost:3000/user"
+  url: "https://quiet-temple-11313.herokuapp.com//user"
 })
   .done(function( data ) {
    console.log("test" + data)
@@ -99,7 +99,7 @@ $("#uploadform").submit(function(e) {
 
         console.log(formData)
         $.ajax({
-            url: "http://localhost:3000/images",
+            url: "https://quiet-temple-11313.herokuapp.com//images",
             type: "POST",
             data: formData,
             processData: false,
@@ -138,7 +138,7 @@ function deleteImg(deleteObject){
   var albumBucketName = src.split("/")[2].split(".")[0]
 
   $.ajax({
-            url: "http://localhost:3000/deletePhoto",
+            url: "https://quiet-temple-11313.herokuapp.com//deletePhoto",
             type: "POST",
             data: {albumBucketName:albumBucketName, photoKey:photoKey}
         }).done(function(data) {
@@ -161,7 +161,7 @@ function saveCaption(saveButton){
   var caption = $(`#captionInput${id}`).val();
   console.log(fileName)
   $.ajax({
-            url: "http://localhost:3000/captionPhoto",
+            url: "https://quiet-temple-11313.herokuapp.com//captionPhoto",
             type: "POST",
             data: {
               imgCaption: caption,
@@ -179,7 +179,7 @@ function displayImages() {
   // get the backend url
   // get the specific user's folder
   console.log("Getting urls")
-  $.get('http://localhost:3000/images', null, function(captionAndUrls) {
+  $.get('https://quiet-temple-11313.herokuapp.com//images', null, function(captionAndUrls) {
   console.log("Got urls: " + captionAndUrls);
   // var url = "aws-filepath";
   for(var i = 0; i < captionAndUrls.length; i++) {
