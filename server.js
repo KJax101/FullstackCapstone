@@ -220,7 +220,7 @@ var formidable=require('formidable')
 var fs=require('fs')
 
 
-app.get('/getimages', verifyToken, function(req, res) {
+app.get('/images', verifyToken, function(req, res) {
   console.log('Getting images')
 
   // Get images this user has in S3 (with the user prefix)
@@ -268,7 +268,7 @@ User.find({username})
   // and return as an array
 });
 
-app.post('/upload', verifyToken, function(req, res){
+app.post('/images', verifyToken, function(req, res){
 
     console.log('STEP1: in upload function');
 

@@ -99,7 +99,7 @@ $("#uploadform").submit(function(e) {
 
         console.log(formData)
         $.ajax({
-            url: "http://localhost:3000/upload",
+            url: "http://localhost:3000/images",
             type: "POST",
             data: formData,
             processData: false,
@@ -179,7 +179,7 @@ function displayImages() {
   // get the backend url
   // get the specific user's folder
   console.log("Getting urls")
-  $.get('http://localhost:3000/getimages', null, function(captionAndUrls) {
+  $.get('http://localhost:3000/images', null, function(captionAndUrls) {
   console.log("Got urls: " + captionAndUrls);
   // var url = "aws-filepath";
   for(var i = 0; i < captionAndUrls.length; i++) {
