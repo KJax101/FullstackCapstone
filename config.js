@@ -12,3 +12,5 @@ exports.JWT_EXPIRY = process.env.JWT_EXPIRY;
 // Temp variables 
 exports.aws_access_key_id = "AKIAJCDYZDIDLL6XNNKQ"
 exports.aws_secret_access_key = "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"
+exports.local_url = "http://localhost:3000"
+exports.deploy_url = "https://quiet-temple-11313.herokuapp.com"
