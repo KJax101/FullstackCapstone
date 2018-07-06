@@ -114,7 +114,8 @@ return User.find({username})
     })
     .then(user => {
       createAlbum(user.username)
-      res.redirect('index.html');
+      console.log("redirecting to accountpg")
+      res.redirect('accountpg.html');
     })
     .catch(err => {
       // Forward validation errors on to the client, otherwise give a 500
