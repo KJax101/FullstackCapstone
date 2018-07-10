@@ -447,7 +447,16 @@ footer {
     margin-bottom: 45px;
   
   }
+
 }
+
+@media only screen and (max-width: 800px) {
+
+ .col-4 {
+  width: 100%;
+}
+}
+
 
 /**** HANDLE MENU****/
 .handle {
@@ -479,8 +488,3 @@ footer {
 }
 
 /**** RESPONSIVE DESIGN ***/
-
-.col-4 {
-  width: 33.333%;
-  
-}
