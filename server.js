@@ -1,38 +1,71 @@
 //importing express app as the variable
-var express = require('express');
+var express = require("express");
 // creating an (instance) of express
 var app = express();
 
+var firebase = require("firebase");
+// Initialize Firebase
+var config = {
+  apiKey: "AIzaSyC-fMaRkyO9AaM0m-ktqphTRVSHfdYsWX0",
+  authDomain: "my-picturebank.firebaseapp.com",
+  databaseURL: "https://my-picturebank.firebaseio.com",
+  projectId: "my-picturebank",
+  storageBucket: "my-picturebank.appspot.com",
+  messagingSenderId: "804183011071"
+};
+firebase.initializeApp(config);
+// firebase.initializeApp({
+//     databaseURL: 'https://picture-project-ken.firebaseio.com',
+//     serviceAccount: 'picture-project-ken-firebase-adminsdk-n18mh-b932233742.json', //this is file that I downloaded from Firebase Console
+// });
+
+var db = firebase.database();
+// db.push({url: "new url"});
+
+var cloudinary = require("cloudinary");
+cloudinary.config({
+  cloud_name: "keng4105",
+  api_key: "864345715162574",
+  api_secret: "yZv1KmkuEzLUH_iWrNSH_nNUaO8"
+});
+
 // we will use this to create a root file path so express
 //    knows where to look for the html file
-var path = require('path');
-var bodyParser = require('body-parser');
+var path = require("path");
+var bodyParser = require("body-parser");
 
 //Importing .env library and assigning as var
-var dotenv = require('dotenv').config();
-let { DATABASE_URL, JWT_SECRET, JWT_EXPIRY} = require('./config');
+var dotenv = require("dotenv").config();
+let { DATABASE_URL, JWT_SECRET, JWT_EXPIRY } = require("./config");
 
-  // coding for travis testing, required for travis to pass
-    DATABASE_URL = DATABASE_URL || "mongodb://Kjax101:openme99@ds011735.mlab.com:11735/kgfullstackcap"
-    JWT_SECRET = JWT_SECRET || "secret"
-    JWT_EXPIRY = JWT_EXPIRY || "7d"
+// coding for travis testing, required for travis to pass
+DATABASE_URL =
+  DATABASE_URL ||
+  "mongodb://Kjax101:openme99@ds011735.mlab.com:11735/kgfullstackcap";
+JWT_SECRET = JWT_SECRET || "secret";
+JWT_EXPIRY = JWT_EXPIRY || "7d";
 
 // Using Morgan for logging entries
-var logger = require('morgan');
+var logger = require("morgan");
 // Importing Mongoose libray which allows communication with Mongo DB
-var mongoose = require('mongoose');
-var {User} = require('./models/user');
-var AWS = require("aws-sdk")
-var s3 = new AWS.S3({ accessKeyId: "AKIAJCDYZDIDLL6XNNKQ", secretAccessKey: "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", region: 'us-east-2', stage: 'prod'});
-var passport = require("passport")
-var jwt = require("jsonwebtoken")
-const { localStrategy, jwtStrategy } = require('./auth');
-const jwtAuth = passport.authenticate('jwt', { session: false });
-const localAuth = passport.authenticate('local', {session: false});
+var mongoose = require("mongoose");
+var { User } = require("./models/user");
+var AWS = require("aws-sdk");
+var s3 = new AWS.S3({
+  accessKeyId: "AKIAJCDYZDIDLL6XNNKQ",
+  secretAccessKey: "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",
+  region: "us-east-2",
+  stage: "prod"
+});
+var passport = require("passport");
+var jwt = require("jsonwebtoken");
+const { localStrategy, jwtStrategy } = require("./auth");
+const jwtAuth = passport.authenticate("jwt", { session: false });
+const localAuth = passport.authenticate("local", { session: false });
 var albumBucketName = "mypicturebank";
-var bucketRegion = 'us-east-2';
-var IdentityPoolId = 'us-east-2:cd660831-fb37-42df-8eec-2e88958aa5ca';
-app.use(express.static(path.join(__dirname, 'public')))
+var bucketRegion = "us-east-2";
+var IdentityPoolId = "us-east-2:cd660831-fb37-42df-8eec-2e88958aa5ca";
+app.use(express.static(path.join(__dirname, "public")));
 
 // AWS.config.update({
 //   region: bucketRegion,
@@ -49,7 +82,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 //   apiVersion: '2006-03-01'
 // });
 
-AWS.config.logger = process.stdout
+AWS.config.logger = process.stdout;
 
 //Middleware section
 
@@ -57,7 +90,7 @@ passport.use(localStrategy);
 passport.use(jwtStrategy);
 
 //Logs request details
-app.use(logger('dev'));
+app.use(logger("dev"));
 // support parsing of application/json type post data
 app.use(bodyParser.json());
 //support parsing of application/x-www-form-urlencoded post data
@@ -65,7 +98,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Enable CORS headers
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Acccept");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Acccept"
+  );
   next();
 });
 
@@ -76,29 +112,44 @@ function verifyFakeToken(req, res, next) {
 }
 */
 
-
-
 //DB Connection using (mongodb://<dbuser>:<dbpassword>@ds011735.mlab.com:11735/kgfullstackcap)
-var mongoConnectString = process.env.DATABASE_URL
- mongoose.connect(DATABASE_URL, function(err){
-  if(err) return console.log(err)
-    console.log("Connected to mLab DB")
-});
+var mongoConnectString = process.env.DATABASE_URL;
+mongoose.connect(
+  DATABASE_URL,
+  function(err) {
+    if (err) return console.log(err);
+    console.log("Connected to mLab DB");
+  }
+);
 
-app.post("/signup", function(req, res){
-console.log(req.body)
-let {username, email, password} = req.body;
+var onComplete = function(error) {
+  if (error) {
+    console.log("Operation failed");
+  } else {
+    console.log(" Operation completed");
+  }
+};
 
-return User.find({username})
+// function createUserInFirebase(user){
+//   console.log("adding user to firebase");
+//   db.ref("users").child(user).set({"images": [], "userName": user}, onComplete);
+
+// }
+
+app.post("/signup", function(req, res) {
+  console.log(req.body);
+  let { username, email, password } = req.body;
+
+  return User.find({ username })
     .count()
     .then(count => {
       if (count > 0) {
         // There is an existing user with the same username
         return Promise.reject({
           code: 422,
-          reason: 'ValidationError',
-          message: 'Username already taken',
-          location: 'username'
+          reason: "ValidationError",
+          message: "Username already taken",
+          location: "username"
         });
       }
       // If there is no existing user, hash the password
@@ -113,359 +164,487 @@ return User.find({username})
       });
     })
     .then(user => {
-      createAlbum(user.username)
-      console.log("redirecting to accountpg")
-      res.redirect('accountpg.html');
+      // createAlbum(user.username)
+      console.log("adding user to firebase");
+      console.log(user.username);
+      var userInfo = {
+        images: [],
+        userName: user.username
+      };
+      db.ref("users")
+        .child(user.username)
+        .set(userInfo, onComplete);
+      const authToken = createAuthToken(user.serialize());
+      app.locals.authToken = authToken;
+
+      console.log(app.locals.authToken);
+
+      console.log("redirecting to accountpg");
+      res.redirect("accountpg.html");
     })
     .catch(err => {
       // Forward validation errors on to the client, otherwise give a 500
       // error because something unexpected has happened
-      if (err.reason === 'ValidationError') {
+      if (err.reason === "ValidationError") {
         return res.status(err.code).json(err);
       }
-      res.status(500).json({code: 500, message: 'Internal server error'});
+      res.status(500).json({ code: 500, message: "Internal server error" });
     });
-})
+});
 
 //Authorization Section
 
-console.log(JWT_EXPIRY)
+console.log(JWT_EXPIRY);
 
 const createAuthToken = function(user) {
   return jwt.sign({ user }, JWT_SECRET, {
-        expiresIn: 86400 // expires in 24 hours
-      });
+    expiresIn: 86400 // expires in 24 hours
+  });
 };
-app.get('/logout', function(req, res){
-  app.locals.authToken = ""
-  var filename = "index.html"
+app.get("/logout", function(req, res) {
+  app.locals.authToken = "";
+  var filename = "index.html";
   var options = {
-    root: path.join(__dirname, 'public')
-  }
-    res.status(200).end();
-    });
+    root: path.join(__dirname, "public")
+  };
+  res.status(200).end();
+});
 
-app.post('/login', localAuth, function(req, res){
+app.post("/login", localAuth, function(req, res) {
+  // console.log(req.user);
   const authToken = createAuthToken(req.user.serialize());
-  console.log("define authtoken")
-  if (authToken){
+  console.log("define authtoken");
+  if (authToken) {
     //res.header('x-auth-token', authToken)
     //res.set({
-      //'x-auth-token': authToken
+    //'x-auth-token': authToken
     //})
-    app.locals.authToken = authToken
-    var filename = "accountpg.html"
+    app.locals.authToken = authToken;
+    var filename = "accountpg.html";
     var options = {
-      root: path.join(__dirname, 'public')
-    }
-    res.sendFile(filename, options, function (err) {
-    if (err) {
-      if (err.code === "ECONNABORT" && res.statusCode == 304) {
-        // No problem, 304 means client cache hit, so no data sent.
-        console.log('304 cache hit for ' + filename);
-        return;
+      root: path.join(__dirname, "public")
+    };
+    res.sendFile(filename, options, function(err) {
+      if (err) {
+        if (err.code === "ECONNABORT" && res.statusCode == 304) {
+          // No problem, 304 means client cache hit, so no data sent.
+          console.log("304 cache hit for " + filename);
+          return;
+        }
+        console.error("SendFile error:", err, " (status: " + err.status + ")");
+        if (err.status) {
+          res.status(err.status).end();
+        }
+      } else {
+        console.log("Sent:", filename);
       }
-      console.error("SendFile error:", err, " (status: " + err.status + ")");
-      if (err.status) {
-        res.status(err.status).end();
-      }
-    }
-    else {
-      console.log('Sent:', filename);
-    }
-  })
+    });
     //res.json(authToken)
+  } else {
+    res.redirectsendFile(path.join(__dirname, "/public", "accountpg.html"));
   }
-  else {res.redirectsendFile(path.join(__dirname, '/public', 'accountpg.html'))};
-  });
+});
 
 function verifyToken(req, res, next) {
-    var token = app.locals.authToken
-    if (!token)
-    {
-      console.log('No token provided')
-        return res.status(403).send({ auth: false, message: 'No token provided.' });
-    }
-    else{
-      console.log("VERIFYING")
-      jwt.verify(token, JWT_SECRET, function(err, decoded) {
-      if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+  var token = app.locals.authToken;
+  console.log(token);
+  if (!token) {
+    console.log("No token provided");
+    return res.status(403).send({ auth: false, message: "No token provided." });
+  } else {
+    console.log("VERIFYING");
+    jwt.verify(token, JWT_SECRET, function(err, decoded) {
+      if (err)
+        return res
+          .status(500)
+          .send({ auth: false, message: "Failed to authenticate token." });
       // if everything good, save to request for use in other routes
-        console.log(decoded.user)
-        req.user = decoded.user;
+      console.log(decoded.user);
+      req.user = decoded.user;
       next();
-      });
-    }
+    });
   }
+}
 
-app.get("/user",verifyToken, function(req,res){
-  console.log('using get /user')
+app.get("/user", verifyToken, function(req, res) {
+  console.log("using get /user");
   //console.log(app.locals.authToken)
   //console.log(req.user)
 
   // res.set('user', req.user);
-  res.json(req.user)
-})
-
-app.use(function (err, req, res, next) {
-  console.error(err.stack)
-  res.status(500).send('Something broke!')
-})
-
-app.post('/refresh', jwtAuth, (req, res) => {
-  const authToken = createAuthToken(req.user);
-  res.json({authToken});
+  console.log("this is the user: " + req.user.username);
+  res.json(req.user.username);
 });
 
-var formidable=require('formidable')
-var fs=require('fs')
+app.use(function(err, req, res, next) {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
 
+app.post("/refresh", jwtAuth, (req, res) => {
+  const authToken = createAuthToken(req.user);
+  res.json({ authToken });
+});
 
-app.get('/images', verifyToken, function(req, res) {
-  console.log('Getting images')
+var formidable = require("formidable");
+var fs = require("fs");
+
+app.get("/images", verifyToken, function(req, res) {
+  console.log("Getting images");
+  console.log("this is the user from get /images: " + req.user.username);
+  var user = req.user.username;
+
+  db.ref("users").on("child_added", function(childSnapshot, prevChildKey) {
+    var userName = childSnapshot.val().userName;
+    // console.log(userName, user);
+
+    if (userName == user) {
+      // console.log("match found");
+      var images = childSnapshot.val().images;
+      console.log(images);
+      res.json(images);
+    }
+  });
 
   // Get images this user has in S3 (with the user prefix)
- var albumName = req.user.username;
-  var albumPhotosKey = encodeURIComponent(albumName) + '/';
-  s3.listObjects({Prefix: albumPhotosKey, Bucket: albumBucketName}, function(err, data) {
-    if (err) {
-      // return alert('There was an error viewing your album: ' + err.message);
-      console.log('There was an error viewing your album: ' + err.message)
+  //  var albumName = req.user.username;
+  //   var albumPhotosKey = encodeURIComponent(albumName) + '/';
+  //   s3.listObjects({Prefix: albumPhotosKey, Bucket: albumBucketName}, function(err, data) {
+  //     if (err) {
+  //       // return alert('There was an error viewing your album: ' + err.message);
+  //       console.log('There was an error viewing your album: ' + err.message)
 
-    }
+  //     }
 
-    var userName = req.user.username
-    var c = data['Contents'] || new array();
-    //console.log("Viewing album:" + c['Prefix'])
-    connectCaptionsImgs(c, userName)
-    // Return the URLs
+  //     var userName = req.user.username
+  //     var c = data['Contents'] || new array();
+  //     //console.log("Viewing album:" + c['Prefix'])
+  //     connectCaptionsImgs(c, userName)
+  //     // Return the URLs
 
-  }
-)
-function connectCaptionsImgs(c, username){
-User.find({username})
-    .then(user =>{
-      var captionAndUrls = [];
-      console.log('USER STUFFF', user)
-      var images = user[0].userAccountImages
-      console.log("USER IMAGES", images)
-      for(var j = 0; j < images.length; j++){
-        for (var i = 1; i < c.length; i++) {
-            //console.log("E: " + c[i]['Key']);
-            var url = "https://"+albumBucketName+".s3.amazonaws.com/"+c[i]['Key']
-            var fileName =  url.split("/")[4];
-            if(images[j].filename == fileName){
-              var newObj = {caption: images[j].imgCaption, url: url};
-              console.log("NEWOBJJJ", newObj)
-              captionAndUrls.push(newObj);
-            }
-        }
-      }
-      console.log("RESPONSE STUFFFFFF", captionAndUrls);
-      res.json(captionAndUrls)
-    })
-    .catch(err => { console.log(err) })
-}
+  //   }
+  // )
+  // function connectCaptionsImgs(c, username){
+  // User.find({username})
+  //     .then(user =>{
+  //       var captionAndUrls = [];
+  //       console.log('USER STUFFF', user)
+  //       var images = user[0].userAccountImages
+  //       console.log("USER IMAGES", images)
+  //       for(var j = 0; j < images.length; j++){
+  //         for (var i = 1; i < c.length; i++) {
+  //             //console.log("E: " + c[i]['Key']);
+  //             var url = "https://"+albumBucketName+".s3.amazonaws.com/"+c[i]['Key']
+  //             var fileName =  url.split("/")[4];
+  //             if(images[j].filename == fileName){
+  //               var newObj = {caption: images[j].imgCaption, url: url};
+  //               console.log("NEWOBJJJ", newObj)
+  //               captionAndUrls.push(newObj);
+  //             }
+  //         }
+  //       }
+  //       console.log("RESPONSE STUFFFFFF", captionAndUrls);
+  //       res.json(captionAndUrls)
+  //     })
+  //     .catch(err => { console.log(err) })
+  // }
   // and return as an array
 });
 
-app.post('/images', verifyToken, function(req, res){
+app.post("/images", verifyToken, function(req, res) {
+  console.log("STEP1: in upload function");
 
-    console.log('STEP1: in upload function');
-
-   var form = new formidable.IncomingForm();
-    form.parse(req, function (err, fields, files) {
-      //console.log(files)
-      // var oldpath = files['photo'].path;
-      // console.log(files['image-file'].path)
-     // var newpath = '/Users/user/workspace/FullstackCapstone/public/TempPics/' + files['image-file'].name;
- //     fs.rename(oldpath, newpath, function (err) {
-  //      if (err) throw err;
-        //var file = files['photo'].path;
-        var file = fs.readFile(files['photo'].path, function (err, data) {
-          if (err) {
-            console.log("CAN'T READ FILE");
-            throw err;
-          }
-
-          var fileName = files['photo'].name;
-          var albumName = req.user.username;
-          var albumPhotosKey = encodeURIComponent(albumName) + '/';
-
-          var photoKey = albumPhotosKey + fileName;
-          console.log("photo key " + photoKey)
-          s3.upload({
-            Key: photoKey,
-            Bucket: albumBucketName,
-            Body: data, // file,
-            ACL: 'public-read'
-          }, function(err, data) {
-            if (err) {
-              return console.log('There was an error uploading your photo: ', err.message);
-            }
-            //console.log(data);
-            // var photos = viewAlbum(albumName);
-            // res.json(photos)
-            var albumPhotosKey = encodeURIComponent(albumName) + '/';
-  s3.listObjects({Prefix: albumPhotosKey, Bucket: albumBucketName}, function(err, data) {
-    if (err) {
-      // return alert('There was an error viewing your album: ' + err.message);
-      console.log('There was an error viewing your album: ' + err.message)
-    }
-    // `this` references the AWS.Response instance that represents the response
-    var href = this.request.httpRequest.endpoint.href;
-    var bucketUrl = href + albumBucketName + '/';
-    var photos = data.Contents
-    //console.log("photos from /upload", photos)
-    var urls = [];
-    var c = photos;
-    console.log("Viewing album:" + c['Prefix'])
-    for (var i = 1; i < c.length; i++) {
-        //console.log("E: " + c[i]['Key']);
-        urls.push("https://"+albumBucketName+".s3.amazonaws.com/"+c[i]['Key']);
-    }
-    // Return the URLs
-    res.send(urls)
-    // return photos;
-    })
-            });
-          // mongo-save imgFilename
-          console.log("MongoTestingStatement!!!", req.user)
-          var userName = req.user.username
-          saveImageToUser(fileName, userName)
-        });
-     // });
-    });
-function saveImageToUser(fileName, username){
-User.find({username})
-    .then(user =>{
-      console.log('USER STUFFF', user)
-      var imgObj = {
-        imgCaption: "",
-        filename: fileName
+  var form = new formidable.IncomingForm();
+  form.parse(req, function(err, fields, files) {
+    //console.log(files)
+    // var oldpath = files['photo'].path;
+    // console.log(files['image-file'].path)
+    // var newpath = '/Users/user/workspace/FullstackCapstone/public/TempPics/' + files['image-file'].name;
+    //     fs.rename(oldpath, newpath, function (err) {
+    //      if (err) throw err;
+    //var file = files['photo'].path;
+    var file = fs.readFile(files["photo"].path, function(err, data) {
+      if (err) {
+        console.log("CAN'T READ FILE");
+        throw err;
       }
-      user[0].userAccountImages.push(imgObj);
 
+      var fileName = files["photo"].name;
+      var user = req.user.username;
+      var filePath = files["photo"].path;
+
+      // console.log(files['photo'].path);
+      console.log("This is the file and user: " + fileName + " and " + user);
+
+      cloudinary.uploader.upload(filePath, function(result) {
+        console.log(result.url);
+        var url = result.url;
+        var images = [];
+        var userInfo = {};
+
+        // db.ref("users").child(user).set({"images": [], "userName": user}, onComplete);
+
+        db.ref("users").on(
+          "child_added",
+          function(childSnapshot, prevChildKey) {
+            userName = childSnapshot.val().userName;
+            console.log("this is the array of images " + images);
+
+            console.log(images.length);
+
+            if (userName == user) {
+              if (!childSnapshot.val().images) {
+                images = [url];
+                userInfo = {
+                  images: images,
+                  userName: user
+                };
+
+                db.ref("users")
+                  .child(user)
+                  .set(userInfo, onComplete);
+              } else {
+                images = childSnapshot.val().images;
+                images.push(url);
+                userInfo = {
+                  images: images,
+                  userName: user
+                };
+
+                db.ref("users")
+                  .child(user)
+                  .set(userInfo, onComplete);
+              }
+              // Return the URLs
+              res.json({ user: user, images: images });
+            }
+          },
+          function(errorObject) {
+            console.log("Errors handled: " + errorObject.code);
+          }
+        );
+
+        // db.ref("users").push(userInfo);
+      });
+
+      // var albumPhotosKey = encodeURIComponent(albumName) + '/';
+
+      // var photoKey = albumPhotosKey + fileName;
+      // console.log("photo key " + photoKey)
+      // s3.upload({
+      //   Key: photoKey,
+      //   Bucket: albumBucketName,
+      //   Body: data, // file,
+      //   ACL: 'public-read'
+      // }, function(err, data) {
+      //   if (err) {
+      //     return console.log('There was an error uploading your photo: ', err.message);
+      //   }
+      //console.log(data);
+      // var photos = viewAlbum(albumName);
+      // res.json(photos)
+      // var albumPhotosKey = encodeURIComponent(albumName) + '/';
+      // s3.listObjects({Prefix: albumPhotosKey, Bucket: albumBucketName}, function(err, data) {
+      //   if (err) {
+      //     // return alert('There was an error viewing your album: ' + err.message);
+      //     console.log('There was an error viewing your album: ' + err.message)
+      //   }
+      //   // `this` references the AWS.Response instance that represents the response
+      //   var href = this.request.httpRequest.endpoint.href;
+      //   var bucketUrl = href + albumBucketName + '/';
+      //   var photos = data.Contents
+      //   //console.log("photos from /upload", photos)
+      //   var urls = [];
+      //   var c = photos;
+      //   console.log("Viewing album:" + c['Prefix'])
+      //   for (var i = 1; i < c.length; i++) {
+      //       //console.log("E: " + c[i]['Key']);
+      //       urls.push("https://"+albumBucketName+".s3.amazonaws.com/"+c[i]['Key']);
+      //   }
+      //   // Return the URLs
+      //   res.send(urls)
+      //   // return photos;
+      //   })
+      // });
+      // mongo-save imgFilename
+      // console.log("MongoTestingStatement!!!", req.user)
+      // var userName = req.user.username
+      // saveImageToUser(fileName, userName)
+    });
+    // });
+  });
+  // function saveImageToUser(fileName, username){
+  // User.find({username})
+  //     .then(user =>{
+  //       console.log('USER STUFFF', user)
+  //       var imgObj = {
+  //         imgCaption: "",
+  //         filename: fileName
+  //       }
+  //       user[0].userAccountImages.push(imgObj);
+
+  //       user[0].save();
+  //     })
+  //     .catch(err => { console.log(err) })
+  // }
+
+  console.log("uploaded");
+  // console.log(req.body);
+});
+
+app.post("/captionPhoto", verifyToken, function(req, res) {
+  console.log("USERRRRRRRRRRR CAPTION", req.user);
+  var username = req.user.username;
+  User.find({ username })
+    .then(user => {
+      console.log("USER STUFFF", user);
+      var imgObj = {
+        imgCaption: req.body.imgCaption,
+        filename: req.body.filename
+      };
+      var images = user[0].userAccountImages;
+      for (var i = 0; i < images.length; i++) {
+        if (images[i].filename == imgObj.filename) {
+          console.log(imgObj);
+          images[i] = imgObj;
+        }
+      }
       user[0].save();
     })
-    .catch(err => { console.log(err) })
-}
-
-  console.log("uploaded")
-  console.log(req.body);
-})
-app.post("/captionPhoto", verifyToken, function(req,res){
-console.log("USERRRRRRRRRRR CAPTION", req.user)
-var username = req.user.username;
-  User.find({username})
-      .then(user =>{
-        console.log('USER STUFFF', user)
-        var imgObj = {
-          imgCaption: req.body.imgCaption,
-          filename: req.body.filename
-        }
-        var images = user[0].userAccountImages
-        for(var i = 0; i < images.length; i++){
-            if(images[i].filename == imgObj.filename){
-              console.log(imgObj)
-              images[i] = imgObj
-            }
-        }
-        user[0].save();
-      })
-      .catch(err => { console.log(err) })
-    res.json({success: "success"})
-})
+    .catch(err => {
+      console.log(err);
+    });
+  res.json({ success: "success" });
+});
 // deletingPhoto from aws bucket
-app.post("/deletePhoto", verifyToken, function(req,res){
-  s3.deleteObject({
-            Key: req.body.photoKey,
-            Bucket: req.body.albumBucketName
-          }, function(err, data) {
-    if (err) {
-      //return console.log('There was an error deleting your photo: ', err.message);
-    }
-    //console.log('Successfully deleted photo.');
-    var userName = req.user.username
-    console.log("PHOTO KEY FOR DELETE OBJECT", req.body.photoKey)
-    var fileName = req.body.photoKey.split("/")[1];
-    console.log("GUESSING WHAT THE FILENAME IS", fileName)
-    deleteFromMongo(userName, fileName)
-  });
-  function deleteFromMongo(username, filename){
-    User.find({username})
-        .then(user =>{
-          console.log('USER STUFFF', user)
-          // var imgObj = {
-          //   imgCaption: req.body.imgCaption,
-          //   filename: req.body.filename
-          // }
-          var images = user[0].userAccountImages
-          for(var i = 0; i < images.length; i++){
-              if(images[i].filename == filename){
-                user[0].userAccountImages.splice(i, 1);
-              }
-          }
-          user[0].save();
-        })
-        .catch(err => { console.log(err) })
-  }
-    res.json({Success: "Successfully deleted"})
-})
+app.post("/deletePhoto", verifyToken, function(req, res) {
+  var urlToDelete = req.body.src;
+  var user = req.body.user;
+  console.log("from /deletePhoto: ", urlToDelete);
+  var images = [];
 
+  db.ref("users").on("child_added", function(childSnapshot, prevChildKey) {
+    var userName = childSnapshot.val().userName;
+
+    if (userName == user) {
+      images = childSnapshot.val().images;
+      console.log(images);
+
+      function removeA(arr) {
+        var what,
+          a = arguments,
+          L = a.length,
+          ax;
+        while (L > 1 && arr.length) {
+          what = a[--L];
+          while ((ax = arr.indexOf(what)) !== -1) {
+            arr.splice(ax, 1);
+          }
+        }
+        return arr;
+      }
+
+      images = removeA(images, urlToDelete);
+
+      var userInfo = {
+        images: images,
+        userName: user
+      };
+
+      db.ref("users")
+        .child(user)
+        .set(userInfo, onComplete);
+      // Return the URLs
+      res.json({ Success: "Successfully deleted" });
+    }
+  });
+
+  // s3.deleteObject({
+  //           Key: req.body.photoKey,
+  //           Bucket: req.body.albumBucketName
+  //         }, function(err, data) {
+  //   if (err) {
+  //     //return console.log('There was an error deleting your photo: ', err.message);
+  //   }
+  //   //console.log('Successfully deleted photo.');
+  //   var userName = req.user.username
+  //   console.log("PHOTO KEY FOR DELETE OBJECT", req.body.photoKey)
+  //   var fileName = req.body.photoKey.split("/")[1];
+  //   console.log("GUESSING WHAT THE FILENAME IS", fileName)
+  //   deleteFromMongo(userName, fileName)
+  // });
+  // function deleteFromMongo(username, filename){
+  //   User.find({username})
+  //       .then(user =>{
+  //         console.log('USER STUFFF', user)
+  //         // var imgObj = {
+  //         //   imgCaption: req.body.imgCaption,
+  //         //   filename: req.body.filename
+  //         // }
+  //         var images = user[0].userAccountImages
+  //         for(var i = 0; i < images.length; i++){
+  //             if(images[i].filename == filename){
+  //               user[0].userAccountImages.splice(i, 1);
+  //             }
+  //         }
+  //         user[0].save();
+  //       })
+  //       .catch(err => { console.log(err) })
+  // }
+});
 
 //Store Data - layout
 
 //setting up root path
-app.get("/", function(req, res){
+app.get("/", function(req, res) {
   // instructing server to return the html by looking in 2 places (arguments) using the
   //filename and the path
-//console.log("home page loaded")
+  //console.log("home page loaded")
 
-res.sendFile(path.join(__dirname, '/public', 'index.html'))
-  });
+  res.sendFile(path.join(__dirname, "/public", "index.html"));
+});
 
-  function createAlbum(albumName) {
-    albumName = albumName.trim();
-    if (!albumName) {
-      return console.log('Album names must contain at least one non-space character.');
-    }
-    if (albumName.indexOf('/') !== -1) {
-      return console.log('Album names cannot contain slashes.');
-    }
-    var albumKey = encodeURIComponent(albumName) + '/';
-    console.log(albumKey)
-    s3.headObject({Key: albumKey.toString(), Bucket: albumBucketName}, function(err, data) {
-      if (!err) {
-        return console.log('Album already exists.');
-      }
-      if (err.code !== 'NotFound') {
-        return console.log('There was an error creating your album: ' + err);
-      }
-      s3.putObject({Key: albumKey.toString(), Bucket: albumBucketName}, function(err, data) {
-        if (err) {
-          return console.log('There was an error creating your album2: ' + err);
-        }
-        console.log('Successfully created album.');
-       // viewAlbum(albumName);
-      });
-    });
-  }
+//   function createAlbum(albumName) {
+//     albumName = albumName.trim();
+//     if (!albumName) {
+//       return console.log('Album names must contain at least one non-space character.');
+//     }
+//     if (albumName.indexOf('/') !== -1) {
+//       return console.log('Album names cannot contain slashes.');
+//     }
+//     var albumKey = encodeURIComponent(albumName) + '/';
+//     console.log(albumKey)
+//     s3.headObject({Key: albumKey.toString(), Bucket: albumBucketName}, function(err, data) {
+//       if (!err) {
+//         return console.log('Album already exists.');
+//       }
+//       if (err.code !== 'NotFound') {
+//         return console.log('There was an error creating your album: ' + err);
+//       }
+//       s3.putObject({Key: albumKey.toString(), Bucket: albumBucketName}, function(err, data) {
+//         if (err) {
+//           return console.log('There was an error creating your album2: ' + err);
+//         }
+//         console.log('Successfully created album.');
+//        // viewAlbum(albumName);
+//       });
+//     });
+//   }
 
-function viewAlbum(albumName) {
-  var albumPhotosKey = encodeURIComponent(albumName) + '/';
-  s3.listObjects({Prefix: albumPhotosKey, Bucket: albumBucketName}, function(err, data) {
-    if (err) {
-      // return alert('There was an error viewing your album: ' + err.message);
-      console.log('There was an error viewing your album: ' + err.message)
-    }
-    // `this` references the AWS.Response instance that represents the response
-    var href = this.request.httpRequest.endpoint.href;
-    var bucketUrl = href + albumBucketName + '/';
-    var photos = data.Contents
-    return photos;
-    })
-}
+// function viewAlbum(albumName) {
+//   var albumPhotosKey = encodeURIComponent(albumName) + '/';
+//   s3.listObjects({Prefix: albumPhotosKey, Bucket: albumBucketName}, function(err, data) {
+//     if (err) {
+//       // return alert('There was an error viewing your album: ' + err.message);
+//       console.log('There was an error viewing your album: ' + err.message)
+//     }
+//     // `this` references the AWS.Response instance that represents the response
+//     var href = this.request.httpRequest.endpoint.href;
+//     var bucketUrl = href + albumBucketName + '/';
+//     var photos = data.Contents
+//     return photos;
+//     })
+// }
 
 //command to listen on a specific port- staring up a server on port 3000
 // app.listen(3000, function(){
@@ -484,18 +663,20 @@ let server;
 function runServer() {
   const port = process.env.PORT || 3000;
   return new Promise((resolve, reject) => {
-    server = app.listen(port, () => {
-      console.log(`Your app is listening on port ${port}`);
-      resolve(server);
-    }).on('error', err => {
-      reject(err)
-    });
+    server = app
+      .listen(port, () => {
+        console.log(`Your app is listening on port ${port}`);
+        resolve(server);
+      })
+      .on("error", err => {
+        reject(err);
+      });
   });
 }
 
 function closeServer() {
   return new Promise((resolve, reject) => {
-    console.log('Closing server');
+    console.log("Closing server");
     server.close(err => {
       if (err) {
         reject(err);
@@ -511,6 +692,6 @@ function closeServer() {
 // runs. but we also export the runServer command so other code (for instance, test code) can start the server as needed.
 if (require.main === module) {
   runServer().catch(err => console.error(err));
-};
+}
 
-module.exports = {app, runServer, closeServer};
+module.exports = { app, runServer, closeServer };

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang = "en">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,  initial-scale=1">
@@ -8,52 +9,108 @@
 </head>
 
 <main role="main">
-    <nav role="navigation" class="nav">
-          <div class="handle"><span class="handle-menu"><a href="index.html">My Picture Bank</a></span><p class="bars" aria-hidden="true">☰ Menu</p></div>
-              <div class="nav-right nav-hover">View Your Collection</div>
-              <div class="nav-logo"><a href ="/index.html">My PictureBank</a></div>
-              <div class="nav-left nav-hover log-in" id="signout">Sign Out</div>
-              </nav>
-              <p id="explain">Welcome to Your PictureBank Account!</p>
+  <nav role="navigation" class="nav">
+    <div class="handle">
+      <span class="handle-menu">
+        <a href="index.html">My Picture Bank</a>
+      </span>
+      <p class="bars" aria-hidden="true">☰ Menu</p>
+    </div>
+    <a href="index.html">
+      <div class="nav-right nav-hover">Home</div>
+    </a>
+    <div class="nav-logo">
+      <a href="/index.html">My PictureBank</a>
+    </div>
+    <div class="nav-left nav-hover log-in" id="signout">Sign Out</div>
+  </nav>
+  <p id="explain">Welcome to Your PictureBank Account!</p>
 
 
-<!--v<form enctype="multipart/form-data" id="uploadform" method="post"> -->
-<form id="uploadform" method="post">
-      <input name="image-file" id="image-file" type="file">
-      <button type="submit" class="submitpic" id="submitpic">Submit</button>
-    </form>
+  <!--v<form enctype="multipart/form-data" id="uploadform" method="post"> -->
+  <form id="uploadform" method="post">
+    <input name="image-file" id="image-file" type="file">
+    <button type="submit" class="submitpic" id="submitpic">Submit</button>
+  </form>
 
   <div id="showImages">
-   <!-- <div class="displayImage">
+    <!-- <div class="displayImage">
    <img src="TempPics/pickers.jpg" alt="" id="imageDisplay">
     </div> -->
   </div>
-                </div>
-              </div>
-            <!-- </div> -->
-          </section>
-        </main>
+  </div>
+  </div>
+  <!-- </div> -->
+  </section>
+</main>
 
-        <footer class="footer-info"></footer>
+<footer class="footer-info"></footer>
 
-  <img src="https://s3.us-east-2.amazonaws.com/mypicturebank/joetest/mountains.jpg">
+<!--   <img src="https://s3.us-east-2.amazonaws.com/mypicturebank/joetest/mountains.jpg">
+ -->
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<!-- <script type="text/javascript" src="index2.js"></script> -->
 
-  <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-  <!-- <script type="text/javascript" src="index2.js"></script> -->
+<script type="text/javascript">
+  // $( document ).ready(function() {
+  $(document).ready(function () {
+    console.log("I'm ready!")
 
-  <script type="text/javascript">
-    // $( document ).ready(function() {
-  $(document).ready(function() {
-    console.log( "I'm ready!" )
-    displayImages();
-    $('#signout').click(function(){
     $.ajax({
-    method: "GET",
-    url: "/logout"
-      }).done(function() {
-     window.location.href = "/";
+      method: "GET",
+      url: "/user"
     })
-  })
+      .done(function (user) {
+        console.log("user data from accountpg.html: " + user)
+
+        console.log("Getting urls")
+        $.get('/images', { user }, function (images) {
+          console.log(images);
+
+          if (images[0] == "") {
+            $('#showImages').append("<h1>You currently have no images saved</h1>");
+            console.log("no images yet");
+          } else {
+            console.log("Got urls: " + images);
+            // var url = "aws-filepath";
+            for (var i = 0; i < images.length; i++) {
+              console.log(images[i])
+              $('#showImages').append(
+                `<div class="imageLayout" id="imagePlacer${i}">
+             <img class="acctImage" src="${images[i]}" id="img${i}" data-user="${user}">
+             <button class="deleteButton" onclick="deleteImg(this)" id="deleteme${i}">Delete Image</button>
+             </div>`)
+            }
+
+            $('.imgparent').each(function (i, v) {
+              $(v).css('order', $(v).index() + 1);
+            })
+
+            $('.footer-info').append('<p>This is the footer2</p>');
+
+          }
+
+          // var captionStuff = ("<span id="captionDisplay${i}">${captionAndUrls[i].caption}</span>
+          //      <input id="captionInput${i}" style="display: none" />
+          //      <button id="saveCaption${i}" onclick="saveCaption(this)" style="display: none">Save Caption</button>
+          //      <button class="deleteButton" onclick="deleteImg(this)" id="deleteme${i}">Delete Image</button>
+          //      <button class="addCaptionButton" onclick="captionImg(this)" id="captionme${i}">Caption Image</button>")
+
+
+        });
+
+      });
+
+
+    // submitpicsubmitpic
+    $('#signout').click(function () {
+      $.ajax({
+        method: "GET",
+        url: "/logout"
+      }).done(function () {
+        window.location.href = "/";
+      })
+    })
   })
 
 
@@ -64,168 +121,159 @@
 
 
 
-$.ajax({
-  method: "GET",
-  url: "/user"
-})
-  .done(function( data ) {
-   console.log("test" + data)
-   console.log(data)
-
-  }); // TODO move back to bottom
 
 
-//initialize order property on all the image parent divs (first has order:1, second order:2, etc.).  This is the jquery for each loop.
+
+  //initialize order property on all the image parent divs (first has order:1, second order:2, etc.).  This is the jquery for each loop.
 
 
-$("#uploadform").submit(function(e) {
+  $("#uploadform").submit(function (e) {
     // console.log("In handler");
     // alert('inhandler');
-        e.preventDefault();
-        var files = $('#image-file').get(0).files
-        var formData = new FormData();
-          if (files.length === 0) {
-                alert('Select atleast 1 file to upload.');
-                return false;
-            }
+    e.preventDefault();
+    var files = $('#image-file').get(0).files
+    var formData = new FormData();
+    if (files.length === 0) {
+      alert('Select atleast 1 file to upload.');
+      return false;
+    }
 
-            if (files.length > 1) {
-                alert('You can only upload 1 file. Uploading only the first file')
-                return false;
-            }
-            // Append the files to the formData.
-                var file = files[0];
-                formData.append('photo', file, file.name);
+    if (files.length > 1) {
+      alert('You can only upload 1 file. Uploading only the first file')
+      return false;
+    }
+    // Append the files to the formData.
+    var file = files[0];
+    formData.append('photo', file, file.name);
 
-        console.log(formData)
-        $.ajax({
-            url: "/images",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false
-        }).done(function(urls) {
-          console.log("uploadurls", urls)
-          $('#showImages').empty()
-        for(var i = 0; i < urls.length; i++) {
+    console.log(formData, file);
+    $.ajax({
+      url: "/images",
+      type: "POST",
+      data: formData,
+      processData: false,
+      contentType: false
+    }).done(function (data) {
+      console.log("uploadurls ", data.images)
+      $('#showImages').empty()
+      for (var i = 0; i < data.images.length; i++) {
+        console.log(data.images[i]);
 
-          $('#showImages').append(`
+        $('#showImages').append(`
           <div class="imageLayout" id="imagePlacer${i}">
-          <img class="acctImage" src="${urls[i]}" id="img${i}">
-          <span id="captionDisplay${i}"></span>
-          <input id="captionInput${i}" style="display: none" />
-          <button id="saveCaption${i}" onclick="saveCaption(this)" style="display: none">Save Caption</button>
+          <img class="acctImage" src="${data.images[i]}" id="img${i}" data-user="${data.user}">
           <button class="deleteButton" onclick="deleteImg(this)" id="deleteme${i}">Delete Image</button>
-          <button class="addCaptionButton" onclick="captionImg(this)" id="captionme${i}">Caption Image</button>
           </div>`)
-  }
+      }
 
-    // alert('in response');
-  //        console.log(data)
-        });
+      // alert('in response');
+      //        console.log(data)
+    });
 
     return true;
 
-});
+  });
 
-// DisplayImages();
-// const IMGSTORAGE = [];
-function deleteImg(deleteObject){
-  console.log(deleteObject.id)
-  var id = deleteObject.id.substr(this.length - 1);
-  var src = $(`#img${id}`).attr("src")
-  var photoKey =  src.split("/")[3] + "/" + src.split("/")[4]
-  var albumBucketName = src.split("/")[2].split(".")[0]
+  // displayImages();
+  // const IMGSTORAGE = []; 
+  function deleteImg(urlToDelete) {
+    console.log(urlToDelete);
+    var id = urlToDelete.id.substr(this.length - 1);
+    var src = $(`#img${id}`).attr("src");
+    var user = $(`#img${id}`).attr("data-user");
+    console.log("url to delete and user: ", src, user);
+    // var photoKey =  src.split("/")[3] + "/" + src.split("/")[4]
+    // var albumBucketName = src.split("/")[2].split(".")[0]
 
-  $.ajax({
-            url: "/deletePhoto",
-            type: "POST",
-            data: {albumBucketName:albumBucketName, photoKey:photoKey}
-        }).done(function(data) {
-          console.log("delete", data.Success)
-       $(`#imagePlacer${id}`).hide()
-        });
-}
+    $.ajax({
+      url: "/deletePhoto",
+      type: "POST",
+      data: { src, user }
+    }).done(function (data) {
+      console.log("delete ", data.Success)
+      $(`#imagePlacer${id}`).hide()
+    });
+  }
 
-function captionImg(captionObject){
-  console.log(captionObject.id)
-  var id = captionObject.id.substr(this.length - 1);
-  $(`#captionInput${id}`).show();
-  $(`#saveCaption${id}`).show();
-}
+  function captionImg(captionObject) {
+    console.log(captionObject.id)
+    var id = captionObject.id.substr(this.length - 1);
+    $(`#captionInput${id}`).show();
+    $(`#saveCaption${id}`).show();
+  }
 
-function saveCaption(saveButton){
-  var id = saveButton.id.substr(this.length - 1);
-  var src = $(`#img${id}`).attr("src")
-  var fileName =  src.split("/")[4];
-  var caption = $(`#captionInput${id}`).val();
-  console.log(fileName)
-  $.ajax({
-            url: "/captionPhoto",
-            type: "POST",
-            data: {
-              imgCaption: caption,
-              filename: fileName
-            }
-        }).done(function(data) {
-          console.log("delete", data.success)
-          $(`#captionInput${id}`).hide();
-          $(`#saveCaption${id}`).hide();
-          $(`#captionDisplay${id}`).html(caption);
-        });
-}
+  function saveCaption(saveButton) {
+    var id = saveButton.id.substr(this.length - 1);
+    var src = $(`#img${id}`).attr("src")
+    var fileName = src.split("/")[4];
+    var caption = $(`#captionInput${id}`).val();
+    console.log(fileName)
+    $.ajax({
+      url: "/captionPhoto",
+      type: "POST",
+      data: {
+        imgCaption: caption,
+        filename: fileName
+      }
+    }).done(function (data) {
+      console.log("delete", data.success)
+      $(`#captionInput${id}`).hide();
+      $(`#saveCaption${id}`).hide();
+      $(`#captionDisplay${id}`).html(caption);
+    });
+  }
 
-function displayImages() {
-  // get the backend url
-  // get the specific user's folder
-  console.log("Getting urls")
-  $.get('/images', null, function(captionAndUrls) {
-  console.log("Got urls: " + captionAndUrls);
-  // var url = "aws-filepath";
-  for(var i = 0; i < captionAndUrls.length; i++) {
-    console.log(captionAndUrls[i])
-   $('#showImages').append(
-  `<div class="imageLayout" id="imagePlacer${i}">
-   <img class="acctImage" src="${captionAndUrls[i].url}" id="img${i}">
-   <span id="captionDisplay${i}">${captionAndUrls[i].caption}</span>
-   <input id="captionInput${i}" style="display: none" />
-   <button id="saveCaption${i}" onclick="saveCaption(this)" style="display: none">Save Caption</button>
-   <button class="deleteButton" onclick="deleteImg(this)" id="deleteme${i}">Delete Image</button>
-   <button class="addCaptionButton" onclick="captionImg(this)" id="captionme${i}">Caption Image</button>
-   </div>`)
-   }
+// function displayImages() {
+//   // get the backend url
+//   // get the specific user's folder
+//   console.log("Getting urls")
+//   $.get('/images', null, function(captionAndUrls) {
+//   console.log("Got urls: " + captionAndUrls);
+//   // var url = "aws-filepath";
+//   for(var i = 0; i < captionAndUrls.length; i++) {
+//     console.log(captionAndUrls[i])
+//    $('#showImages').append(
+//   `<div class="imageLayout" id="imagePlacer${i}">
+//    <img class="acctImage" src="${captionAndUrls[i].url}" id="img${i}">
+//    <span id="captionDisplay${i}">${captionAndUrls[i].caption}</span>
+//    <input id="captionInput${i}" style="display: none" />
+//    <button id="saveCaption${i}" onclick="saveCaption(this)" style="display: none">Save Caption</button>
+//    <button class="deleteButton" onclick="deleteImg(this)" id="deleteme${i}">Delete Image</button>
+//    <button class="addCaptionButton" onclick="captionImg(this)" id="captionme${i}">Caption Image</button>
+//    </div>`)
+//    }
 
 //    $('.imgparent').each(function(i,v) {
 //   $(v).css('order',$(v).index()+1);
 // })
 
-// $(`#prioritizeme${i}`).click(function (){
-//     let parentDivIndex=parseInt($(this).parent().css('order'));
-//     //the order property for the prior image must be one less
-//     priorDivIndex=parentDivIndex-1;
-//     if (priorDivIndex==0) {
-//       //(children.length is the ending index)
-//       priorDivIndex=$('#showImages').children().length;
-//     }
+// // $(`#prioritizeme${i}`).click(function (){
+// //     let parentDivIndex=parseInt($(this).parent().css('order'));
+// //     //the order property for the prior image must be one less
+// //     priorDivIndex=parentDivIndex-1;
+// //     if (priorDivIndex==0) {
+// //       //(children.length is the ending index)
+// //       priorDivIndex=$('#showImages').children().length;
+// //     }
 
-//     //looking for the imgparent div that has the priorDivIndex value and give it the parentDivIndex value (i.e. move the one before down)
-//     $(".imgparent").each(function(i,v) {
-//       if ($(v).css('order') == priorDivIndex) {
-//           $(v).css('order',parentDivIndex);
-//       }
-//     });
+// //     //looking for the imgparent div that has the priorDivIndex value and give it the parentDivIndex value (i.e. move the one before down)
+// //     $(".imgparent").each(function(i,v) {
+// //       if ($(v).css('order') == priorDivIndex) {
+// //           $(v).css('order',parentDivIndex);
+// //       }
+// //     });
 
-//     //moving the parent div on the one you just clicked on up
-//     $(this).parent().css('order',priorDivIndex);
-//  });
+// //     //moving the parent div on the one you just clicked on up
+// //     $(this).parent().css('order',priorDivIndex);
+// //  });
 
-  // $('#showImages').append("<div class='imageLayout'><img class='acctImage' src='"+ urls[i] +"'><button class='deleteButton'>Delete</button></div>");
-  // }
-   $('.footer-info').append('<p>This is the footer2</p>')
+//   // $('#showImages').append("<div class='imageLayout'><img class='acctImage' src='"+ urls[i] +"'><button class='deleteButton'>Delete</button></div>");
+//   // }
+//    $('.footer-info').append('<p>This is the footer2</p>')
 
-  })
-}
+//   })
+// }
 
 
 
-  </script>
+</script>
